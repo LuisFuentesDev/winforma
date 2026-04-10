@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Search, Sun, Moon, Eye } from "lucide-react";
 import { useAllPageViews } from "@/hooks/usePageViews";
 import { useArticles } from "@/hooks/useArticles";
+import { useThemePreference } from "@/hooks/useThemePreference";
 
 const categories = ["Regional", "Nacional", "Internacional", "Deportes", "Editorial"];
 
@@ -27,18 +28,7 @@ const Header = () => {
     ).slice(0, 6);
   }, [articles, searchQuery]);
 
-  const [dark, setDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") === "dark" ||
-        (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
+  const { dark, setDark } = useThemePreference();
 
   return (
     <header className="border-b border-border">

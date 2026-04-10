@@ -93,7 +93,7 @@ export function createEmptyArticleForm(): AdminArticleFormValues {
     imageUrl: "",
     sourceUrl: "",
     breaking: false,
-    status: "draft",
+    status: "published",
     publishedAt: toDatetimeLocalValue(new Date().toISOString()),
   };
 }
