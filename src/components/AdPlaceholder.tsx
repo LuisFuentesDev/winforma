@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import bannerHeaderPublicidad from "@/assets/banner-header.png";
 import bannerEntrada from "@/assets/banner-entrada.png";
 import bannerMedio from "@/assets/banner-medio.png";
+import { useAds } from "@/hooks/useAds";
 
 interface AdPlaceholderProps {
   size: "leaderboard" | "sidebar" | "banner" | "inline";
@@ -15,53 +16,51 @@ const sizeMap = {
   inline: { label: "728 × 90", className: "w-full aspect-[364/45] max-h-[90px]" },
 };
 
+const defaultImages = {
+  leaderboard: bannerHeaderPublicidad,
+  banner: bannerMedio,
+  inline: bannerEntrada,
+};
+
 const AdPlaceholder = ({ size, className = "" }: AdPlaceholderProps) => {
   const config = sizeMap[size];
+  const { data: ads = [] } = useAds();
+  const ad = ads.find((item) => item.slot === size);
+  const targetUrl = ad?.target_url || "/tarifario";
+  const imageUrl = ad?.image_url || defaultImages[size as keyof typeof defaultImages];
+  const altText = ad?.title || "Banner publicitario";
+  const isExternalTarget = targetUrl.startsWith("http://") || targetUrl.startsWith("https://");
 
-  if (size === "leaderboard") {
-    return (
-      <Link
-        to="/tarifario"
-        className={`block ${config.className} overflow-hidden rounded-md bg-muted/20 ${className}`}
-        aria-label="Ver tarifario publicitario"
-      >
-        <img
-          src={bannerHeaderPublicidad}
-          alt="Banner publicitario"
-          className="h-full w-full object-contain object-center"
-        />
-      </Link>
+  if (size === "leaderboard" || size === "banner" || size === "inline") {
+    const image = (
+      <img
+        src={imageUrl}
+        alt={altText}
+        className="h-full w-full object-contain object-center"
+      />
     );
-  }
 
-  if (size === "banner") {
+    if (isExternalTarget) {
+      return (
+        <a
+          href={targetUrl}
+          className={`block ${config.className} overflow-hidden rounded-md bg-muted/20 ${className}`}
+          aria-label={altText}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {image}
+        </a>
+      );
+    }
+
     return (
       <Link
-        to="/tarifario"
+        to={targetUrl}
         className={`block ${config.className} overflow-hidden rounded-md bg-muted/20 ${className}`}
-        aria-label="Ver tarifario publicitario"
+        aria-label={altText}
       >
-        <img
-          src={bannerMedio}
-          alt="Banner publicitario"
-          className="h-full w-full object-contain object-center"
-        />
-      </Link>
-    );
-  }
-
-  if (size === "inline") {
-    return (
-      <Link
-        to="/tarifario"
-        className={`block ${config.className} overflow-hidden rounded-md bg-muted/20 ${className}`}
-        aria-label="Ver tarifario publicitario"
-      >
-        <img
-          src={bannerEntrada}
-          alt="Banner publicitario"
-          className="h-full w-full object-contain object-center"
-        />
+        {image}
       </Link>
     );
   }

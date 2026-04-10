@@ -5,7 +5,9 @@ import { Mail } from "lucide-react";
 import Seo from "@/components/Seo";
 
 const tarifas = [
-  { formato: "Banner Web Principal", plataforma: "Web (Inicio)", tamano: "1920 x 600", duracion: "7 días", valor: "$140.000" },
+  { formato: "Banner Web Principal", plataforma: "Web (Inicio)", tamano: "1400 x 90", duracion: "7 días", valor: "$140.000" },
+  { formato: "Banner Web Medio", plataforma: "Web (Inicio)", tamano: "1400 x 250", duracion: "7 días", valor: "$110.000" },
+  { formato: "Banner Entrada Nota", plataforma: "Web (Artículo)", tamano: "728 x 90", duracion: "7 días", valor: "$80.000" },
   { formato: "Banner Lateral Web", plataforma: "Web (Sidebar)", tamano: "300 x 600", duracion: "7 días", valor: "$65.000" },
   { formato: "Paquete RRSS", plataforma: "Facebook + Instagram (Feed + Stories)", tamano: "Variable", duracion: "7 días", valor: "$200.000" },
   { formato: "Reel Publicitario", plataforma: "Instagram (Feed/Reels)", tamano: "1080 x 1920", duracion: "1 día", valor: "$90.000" },
