@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, ChevronDown, Loader2, LogOut, Plus, RefreshCw, Upload } from "lucide-react";
+import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Plus, RefreshCw, Upload } from "lucide-react";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,7 @@ const AdminPage = () => {
   const { session, user, isLoading } = useAdminSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [articles, setArticles] = useState<AdminArticleRecord[]>([]);
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
@@ -323,15 +324,26 @@ const AdminPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="admin-password">Contraseña</Label>
-                <Input
-                  id="admin-password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="admin-password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    className="pr-11"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((current) => !current)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <Button className="w-full" type="submit" disabled={isAuthenticating}>
