@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   readonly VITE_STORAGE_BUCKET?: string;
   readonly VITE_ARTICLE_IMAGES_BUCKET?: string;
+  readonly VITE_GA_MEASUREMENT_ID?: string;
 }
 
 interface ImportMeta {
