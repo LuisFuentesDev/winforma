@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/share/:slug",
+      "destination": "/api/share?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/articulo/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/seccion/:category",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/politica-de-privacidad",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tarifario",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Pretty share URLs for social previews
+RewriteRule ^share/([^/]+)/?$ /share.php?slug=$1 [L,QSA]
+
+# Let the React SPA handle client-side routes on refresh.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
