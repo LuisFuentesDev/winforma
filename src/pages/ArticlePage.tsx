@@ -7,7 +7,7 @@ import { formatArticleDate } from "@/data/articles";
 import { usePageViews } from "@/hooks/usePageViews";
 import { useArticle } from "@/hooks/useArticles";
 import { useState } from "react";
-import Seo, { SITE_URL } from "@/components/Seo";
+import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import ArticleImage from "@/components/ArticleImage";
 
 function normalizeText(value: string) {
@@ -122,26 +122,37 @@ const ArticlePage = () => {
   const articleTitle = `${article.title} | ${article.category}`;
   const schema = {
     "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    headline: article.title,
-    description: article.summary,
-    image: [article.image.startsWith("http") ? article.image : `${SITE_URL}${article.image}`],
-    datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
-    articleSection: article.category,
-    author: {
-      "@type": "Person",
-      name: article.author,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "WINFORMA",
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/favicon.png`,
+    "@graph": [
+      PUBLISHER,
+      {
+        "@type": "WebSite",
+        "@id": WEBSITE_ID,
+        url: SITE_URL,
+        name: "WINFORMA",
+        inLanguage: "es-CL",
+        publisher: {
+          "@id": ORGANIZATION_ID,
+        },
       },
-    },
-    mainEntityOfPage: `${SITE_URL}${articlePath}`,
+      {
+        "@type": "NewsArticle",
+        headline: article.title,
+        description: article.summary,
+        image: [article.image.startsWith("http") ? article.image : `${SITE_URL}${article.image}`],
+        datePublished: article.publishedAt,
+        dateModified: article.publishedAt,
+        articleSection: article.category,
+        isAccessibleForFree: true,
+        author: {
+          "@type": "Person",
+          name: article.author,
+        },
+        publisher: {
+          "@id": ORGANIZATION_ID,
+        },
+        mainEntityOfPage: `${SITE_URL}${articlePath}`,
+      },
+    ],
   };
 
   return (

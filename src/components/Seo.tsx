@@ -5,6 +5,20 @@ const SITE_URL = "https://winforma.cl";
 const DEFAULT_IMAGE = `${SITE_URL}/og-winforma.png`;
 const MANAGED_ATTR = "data-seo-managed";
 
+const ORGANIZATION_ID = `${SITE_URL}#organization`;
+const WEBSITE_ID = `${SITE_URL}#website`;
+
+const PUBLISHER = {
+  "@type": "NewsMediaOrganization",
+  "@id": ORGANIZATION_ID,
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE_URL}/favicon.png`,
+  },
+};
+
 type SchemaValue = Record<string, unknown> | Array<Record<string, unknown>>;
 
 interface SeoProps {
@@ -182,4 +196,5 @@ const Seo = ({
 };
 
 export { SITE_NAME, SITE_URL, DEFAULT_IMAGE };
+export { ORGANIZATION_ID, WEBSITE_ID, PUBLISHER };
 export default Seo;

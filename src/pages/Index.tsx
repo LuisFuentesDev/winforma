@@ -4,7 +4,7 @@ import HeroHeadline from "@/components/HeroHeadline";
 import LatestNews from "@/components/LatestNews";
 import SecondaryGrid from "@/components/SecondaryGrid";
 import AdPlaceholder from "@/components/AdPlaceholder";
-import Seo, { SITE_URL } from "@/components/Seo";
+import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import { usePageViews } from "@/hooks/usePageViews";
 
 const Index = () => {
@@ -12,19 +12,25 @@ const Index = () => {
 
   const schema = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "WINFORMA",
-    url: SITE_URL,
-    inLanguage: "es-CL",
-    publisher: {
-      "@type": "Organization",
-      name: "WINFORMA",
-      url: SITE_URL,
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/favicon.png`,
+    "@graph": [
+      {
+        ...PUBLISHER,
+        sameAs: [
+          "https://www.instagram.com/winforma.cl/",
+          "https://www.facebook.com/winforma.cl",
+        ],
       },
-    },
+      {
+        "@type": "WebSite",
+        "@id": WEBSITE_ID,
+        url: SITE_URL,
+        name: "WINFORMA",
+        inLanguage: "es-CL",
+        publisher: {
+          "@id": ORGANIZATION_ID,
+        },
+      },
+    ],
   };
 
   return (
