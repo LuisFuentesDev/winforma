@@ -4,6 +4,7 @@ const INSTAGRAM_ACCESS_TOKEN = Deno.env.get("INSTAGRAM_ACCESS_TOKEN") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const BASE_URL = Deno.env.get("BASE_URL") ?? "";
 const BASE_SERVICE_ROLE_KEY = Deno.env.get("BASE_SERVICE_ROLE_KEY") ?? "";
+const STORAGE_BUCKET = Deno.env.get("STORAGE_BUCKET") ?? "article-images";
 const INSTAGRAM_FETCH_LIMIT = Number(Deno.env.get("INSTAGRAM_FETCH_LIMIT") ?? "10");
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
@@ -212,6 +213,62 @@ async function rewriteWithOpenAI(paragraphs: string[], category: string) {
   };
 }
 
+function guessFileExtension(contentType: string | null, url: string) {
+  if (contentType?.includes("png")) return "png";
+  if (contentType?.includes("webp")) return "webp";
+  if (contentType?.includes("gif")) return "gif";
+  if (contentType?.includes("jpeg") || contentType?.includes("jpg")) return "jpg";
+
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    const match = pathname.match(/\.(jpg|jpeg|png|webp|gif)$/);
+    if (match) {
+      return match[1] === "jpeg" ? "jpg" : match[1];
+    }
+  } catch {
+    // Ignore invalid URLs and fall back to jpg.
+  }
+
+  return "jpg";
+}
+
+async function uploadImageToStorage(
+  supabase: ReturnType<typeof createClient>,
+  remoteImageUrl: string,
+  slug: string,
+) {
+  const response = await fetch(remoteImageUrl);
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Image download failed ${response.status}: ${detail}`);
+  }
+
+  const contentType = response.headers.get("content-type");
+  const extension = guessFileExtension(contentType, remoteImageUrl);
+  const path = `articles/${slug}.${extension}`;
+  const blob = await response.blob();
+
+  const { error: uploadError } = await supabase
+    .storage
+    .from(STORAGE_BUCKET)
+    .upload(path, blob, {
+      cacheControl: "31536000",
+      contentType: contentType ?? `image/${extension}`,
+      upsert: true,
+    });
+
+  if (uploadError) {
+    throw new Error(`Storage upload failed: ${uploadError.message}`);
+  }
+
+  const { data } = supabase
+    .storage
+    .from(STORAGE_BUCKET)
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
 Deno.serve(async () => {
   try {
     if (!INSTAGRAM_ACCESS_TOKEN || !OPENAI_API_KEY || !BASE_URL || !BASE_SERVICE_ROLE_KEY) {
@@ -248,7 +305,10 @@ Deno.serve(async () => {
       const cleanedParagraphs = removeDuplicateLeadTitle(title, paragraphs);
       const finalSummary = summary || makeMetaDescription(cleanedParagraphs, 110);
       const slug = slugify(title || `instagram-${media.id || "post"}`);
-      const imageUrl = media.thumbnail_url || media.media_url || null;
+      const remoteImageUrl = media.thumbnail_url || media.media_url || "";
+      const imageUrl = remoteImageUrl
+        ? await uploadImageToStorage(supabase, remoteImageUrl, slug)
+        : null;
       const publishedAt = media.timestamp || new Date().toISOString();
 
       const { data, error } = await supabase
