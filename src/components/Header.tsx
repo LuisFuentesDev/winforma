@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Search, Sun, Moon, Eye } from "lucide-react";
 import { useAllPageViews } from "@/hooks/usePageViews";
 import { useArticles } from "@/hooks/useArticles";
@@ -12,6 +12,7 @@ const Header = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const totalViews = useAllPageViews();
   const { data: articles = [] } = useArticles();
   const currentDate = new Intl.DateTimeFormat("es-CL", {
@@ -56,6 +57,12 @@ const Header = () => {
           </div>
 
           <div className="flex items-center justify-end gap-3">
+            {totalViews !== null && totalViews > 0 && (
+              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground font-sans">
+                <Eye size={13} />
+                {totalViews.toLocaleString()}
+              </span>
+            )}
             <button
               className="text-foreground hover:text-primary transition-colors"
               onClick={() => setDark(!dark)}
@@ -87,7 +94,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center justify-end gap-3 lg:col-start-3">
-          {totalViews !== null && (
+          {totalViews !== null && totalViews > 0 && (
             <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground font-sans">
               <Eye size={14} />
               {totalViews.toLocaleString()} visitas
@@ -117,21 +124,33 @@ const Header = () => {
             <li>
               <Link
                 to="/"
-                className="text-sm font-semibold font-sans text-foreground hover:text-primary transition-colors uppercase tracking-wide"
+                className={`text-sm font-semibold font-sans transition-colors uppercase tracking-wide border-b-2 pb-0.5 ${
+                  location.pathname === "/"
+                    ? "text-primary border-primary"
+                    : "text-foreground hover:text-primary border-transparent"
+                }`}
               >
                 Inicio
               </Link>
             </li>
-            {categories.map((cat) => (
-              <li key={cat}>
-                <Link
-                  to={`/seccion/${encodeURIComponent(cat)}`}
-                  className="text-sm font-semibold font-sans text-foreground hover:text-primary transition-colors uppercase tracking-wide"
-                >
-                  {cat}
-                </Link>
-              </li>
-            ))}
+            {categories.map((cat) => {
+              const href = `/seccion/${encodeURIComponent(cat)}`;
+              const active = location.pathname === href;
+              return (
+                <li key={cat}>
+                  <Link
+                    to={href}
+                    className={`text-sm font-semibold font-sans transition-colors uppercase tracking-wide border-b-2 pb-0.5 ${
+                      active
+                        ? "text-primary border-primary"
+                        : "text-foreground hover:text-primary border-transparent"
+                    }`}
+                  >
+                    {cat}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
@@ -182,27 +201,32 @@ const Header = () => {
       )}
 
       {/* Mobile menu overlay */}
-      {menuOpen && (
-        <div className="lg:hidden border-t border-border bg-card px-4 py-4 space-y-3">
-          <Link
-            to="/"
-            className="block text-base font-semibold font-sans text-foreground hover:text-primary uppercase tracking-wide"
-            onClick={() => setMenuOpen(false)}
-          >
-            Inicio
-          </Link>
-          {categories.map((cat) => (
+      <div
+        className={`lg:hidden border-t border-border bg-card px-4 space-y-3 overflow-hidden transition-all duration-200 ease-in-out ${
+          menuOpen ? "max-h-96 py-4 opacity-100" : "max-h-0 py-0 opacity-0"
+        }`}
+      >
+        <Link
+          to="/"
+          className={`block text-base font-semibold font-sans uppercase tracking-wide ${location.pathname === "/" ? "text-primary" : "text-foreground hover:text-primary"}`}
+          onClick={() => setMenuOpen(false)}
+        >
+          Inicio
+        </Link>
+        {categories.map((cat) => {
+          const href = `/seccion/${encodeURIComponent(cat)}`;
+          return (
             <Link
               key={cat}
-              to={`/seccion/${encodeURIComponent(cat)}`}
-              className="block text-base font-semibold font-sans text-foreground hover:text-primary uppercase tracking-wide"
+              to={href}
+              className={`block text-base font-semibold font-sans uppercase tracking-wide ${location.pathname === href ? "text-primary" : "text-foreground hover:text-primary"}`}
               onClick={() => setMenuOpen(false)}
             >
               {cat}
             </Link>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </header>
   );
 };

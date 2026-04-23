@@ -2,10 +2,10 @@ import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdPlaceholder from "@/components/AdPlaceholder";
-import { ArrowLeft, Eye, Share2 } from "lucide-react";
+import { ArrowLeft, Eye, Share2, ChevronRight } from "lucide-react";
 import { formatArticleDate } from "@/data/articles";
 import { usePageViews } from "@/hooks/usePageViews";
-import { useArticle } from "@/hooks/useArticles";
+import { useArticle, useArticles } from "@/hooks/useArticles";
 import { useState } from "react";
 import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import ArticleImage from "@/components/ArticleImage";
@@ -43,6 +43,7 @@ function sanitizeArticleContent(content: string, title: string) {
 const ArticlePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading, isError } = useArticle(slug);
+  const { data: allArticles = [] } = useArticles();
   const viewCount = usePageViews(slug ? `article-${slug}` : "");
   const [shareLabel, setShareLabel] = useState("Compartir");
 
@@ -170,13 +171,19 @@ const ArticlePage = () => {
       <Header />
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-sm font-sans text-muted-foreground hover:text-primary transition-colors mb-6"
-        >
-          <ArrowLeft size={16} />
-          Volver al inicio
-        </Link>
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-xs font-sans text-muted-foreground mb-6 flex-wrap">
+          <Link to="/" className="hover:text-primary transition-colors">Inicio</Link>
+          <ChevronRight size={12} className="shrink-0" />
+          <Link
+            to={`/seccion/${encodeURIComponent(article.category)}`}
+            className="hover:text-primary transition-colors"
+          >
+            {article.category}
+          </Link>
+          <ChevronRight size={12} className="shrink-0" />
+          <span className="text-foreground line-clamp-1">{article.title}</span>
+        </nav>
 
         <span className="block text-xs font-semibold font-sans uppercase tracking-wider text-primary mb-2">
           {article.category}
@@ -200,7 +207,7 @@ const ArticlePage = () => {
               <span className="hidden sm:inline">·</span>
               <span className="inline-flex items-center gap-1">
                 <Eye size={14} />
-                {viewCount.toLocaleString()} visitas
+                {viewCount > 0 ? viewCount.toLocaleString() : "—"} visitas
               </span>
             </>
           )}
@@ -232,10 +239,52 @@ const ArticlePage = () => {
 
         <div
           className="prose prose-lg max-w-none font-serif text-foreground
-            [&>*:first-child]:mt-0 [&_p]:mb-5 [&_p]:leading-relaxed [&_p]:text-base
+            [&>*:first-child]:mt-0 [&_p]:mb-5 [&_p]:leading-loose [&_p]:text-base
             [&_p:first-child]:mt-0 md:[&_p]:text-lg"
           dangerouslySetInnerHTML={{ __html: sanitizeArticleContent(article.content, article.title) }}
         />
+
+        {/* Related articles */}
+        {(() => {
+          const related = allArticles
+            .filter((a) => a.category === article.category && a.slug !== article.slug)
+            .slice(0, 3);
+          if (!related.length) return null;
+          return (
+            <section className="mt-12 pt-8 border-t border-border">
+              <h3 className="text-lg font-bold font-serif text-foreground mb-6 pb-2 border-b-2 border-foreground">
+                También en {article.category}
+              </h3>
+              <div className="grid gap-6 sm:grid-cols-3">
+                {related.map((rel) => (
+                  <Link key={rel.slug} to={`/articulo/${rel.slug}`} className="group">
+                    <ArticleImage
+                      src={rel.image}
+                      alt={rel.title}
+                      category={rel.category}
+                      className="w-full h-36 object-cover object-top mb-3 transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+                    <p className="text-sm font-bold font-serif text-foreground leading-snug group-hover:underline decoration-1 underline-offset-2">
+                      {rel.title}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground font-sans mt-1">{rel.time}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          );
+        })()}
+
+        {/* Back to home */}
+        <div className="mt-10 pt-6 border-t border-border">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm font-sans text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Volver al inicio
+          </Link>
+        </div>
       </main>
 
       <Footer />

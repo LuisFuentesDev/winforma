@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "@/data/articles";
 import { useArticles } from "@/hooks/useArticles";
 import ArticleImage from "@/components/ArticleImage";
+
+const PAGE_SIZE = 9;
 
 const ArticleCard = ({ article }: { article: Article }) => (
   <Link to={`/articulo/${article.slug}`}>
@@ -35,7 +38,10 @@ const ArticleCard = ({ article }: { article: Article }) => (
 
 const SecondaryGrid = () => {
   const { data: articles = [] } = useArticles();
-  const secondaryArticles = articles.slice(6);
+  const [limit, setLimit] = useState(PAGE_SIZE);
+  const pool = articles.slice(6);
+  const visible = pool.slice(0, limit);
+  const hasMore = limit < pool.length;
 
   return (
     <section>
@@ -43,10 +49,20 @@ const SecondaryGrid = () => {
         Más Noticias
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {secondaryArticles.map((article) => (
+        {visible.map((article) => (
           <ArticleCard key={article.slug} article={article} />
         ))}
       </div>
+      {hasMore && (
+        <div className="mt-10 text-center">
+          <button
+            onClick={() => setLimit((l) => l + PAGE_SIZE)}
+            className="inline-flex items-center gap-2 border border-border rounded-sm px-6 py-2.5 text-sm font-semibold font-sans text-foreground hover:bg-muted transition-colors"
+          >
+            Cargar más noticias
+          </button>
+        </div>
+      )}
     </section>
   );
 };

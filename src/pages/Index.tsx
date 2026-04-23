@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import HeroHeadline from "@/components/HeroHeadline";
 import LatestNews from "@/components/LatestNews";
 import SecondaryGrid from "@/components/SecondaryGrid";
+import MostRead from "@/components/MostRead";
 import AdPlaceholder from "@/components/AdPlaceholder";
 import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import { usePageViews } from "@/hooks/usePageViews";
@@ -64,6 +65,9 @@ const Index = () => {
         <div className="mb-12">
           <AdPlaceholder size="banner" />
         </div>
+
+        {/* Most read */}
+        <MostRead />
 
         {/* Secondary articles grid */}
         <SecondaryGrid />

@@ -24,7 +24,7 @@ const LatestNews = () => {
                   {item.category}
                 </span>
               </div>
-              <p className="text-sm font-serif font-bold text-foreground leading-snug group-hover:underline decoration-1 underline-offset-2">
+              <p className="text-[15px] font-serif font-bold text-foreground leading-snug group-hover:underline decoration-1 underline-offset-2">
                 {item.title}
               </p>
               <p className="text-[11px] text-muted-foreground font-sans mt-1">{item.time}</p>
