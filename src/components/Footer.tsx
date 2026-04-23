@@ -1,20 +1,42 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("Ingresa un correo válido.");
 
-  const handleNewsletter = (e: React.FormEvent) => {
+  const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes("@")) {
+      setErrorMsg("Ingresa un correo válido.");
       setStatus("error");
       return;
     }
-    // TODO: integrate with email service (Mailchimp, Resend, etc.)
-    setStatus("success");
-    setEmail("");
+    if (!supabase) {
+      setErrorMsg("Error de conexión. Intenta más tarde.");
+      setStatus("error");
+      return;
+    }
+
+    setStatus("loading");
+
+    try {
+      const { error } = await supabase.functions.invoke("newsletter-subscribe", {
+        body: { email: email.trim().toLowerCase() },
+      });
+
+      if (error) throw error;
+
+      setStatus("success");
+      setEmail("");
+    } catch (err) {
+      console.error("[newsletter] Error:", err);
+      setErrorMsg("Ocurrió un error. Intenta nuevamente.");
+      setStatus("error");
+    }
   };
 
   return (
@@ -30,7 +52,7 @@ const Footer = () => {
           </p>
           {status === "success" ? (
             <p className="text-sm text-primary font-semibold font-sans">
-              ¡Gracias! Te has suscrito correctamente.
+              ¡Gracias! Revisa tu bandeja de entrada.
             </p>
           ) : (
             <form onSubmit={handleNewsletter} className="flex gap-2 justify-center">
@@ -39,19 +61,21 @@ const Footer = () => {
                 placeholder="tucorreo@ejemplo.com"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }}
-                className="flex-1 max-w-xs border border-border rounded-sm px-3 py-2 text-sm bg-background text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary"
+                disabled={status === "loading"}
+                className="flex-1 max-w-xs border border-border rounded-sm px-3 py-2 text-sm bg-background text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
               />
               <button
                 type="submit"
-                className="bg-primary text-primary-foreground text-sm font-semibold font-sans px-4 py-2 rounded-sm hover:opacity-90 transition-opacity shrink-0"
+                disabled={status === "loading"}
+                className="bg-primary text-primary-foreground text-sm font-semibold font-sans px-4 py-2 rounded-sm hover:opacity-90 transition-opacity shrink-0 disabled:opacity-60"
               >
-                Suscribirse
+                {status === "loading" ? "Enviando..." : "Suscribirse"}
               </button>
             </form>
           )}
           {status === "error" && (
             <p className="text-xs text-destructive font-sans mt-2">
-              Ingresa un correo válido.
+              {errorMsg}
             </p>
           )}
         </div>
