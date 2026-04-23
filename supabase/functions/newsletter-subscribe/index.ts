@@ -60,8 +60,12 @@ Deno.serve(async (req) => {
   }
 
   // Enviar email de bienvenida con Resend
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+
   const resendRes = await fetch("https://api.resend.com/emails", {
     method: "POST",
+    signal: controller.signal,
     headers: {
       Authorization: `Bearer ${RESEND_API_KEY}`,
       "Content-Type": "application/json",
@@ -99,6 +103,8 @@ Deno.serve(async (req) => {
       `,
     }),
   });
+
+  clearTimeout(timeout);
 
   if (!resendRes.ok) {
     const resendError = await resendRes.text();
