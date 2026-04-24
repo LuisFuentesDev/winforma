@@ -9,6 +9,7 @@ const HeroHeadline = () => {
   const sub1 = articles[1];
   const sub2 = articles[2];
   const sub3 = articles[3];
+  const sub4 = articles[4];
 
   if (!main) return null;
 
@@ -47,7 +48,7 @@ const HeroHeadline = () => {
 
         {/* Columna derecha — 3 historias secundarias */}
         <div className="lg:pl-8 space-y-0 divide-y divide-border">
-          {[sub1, sub2, sub3].filter(Boolean).map((article) => (
+          {[sub1, sub2, sub3, sub4].filter(Boolean).map((article) => (
             <Link key={article!.slug} to={`/articulo/${article!.slug}`} className="group flex gap-4 py-4 first:pt-0 last:pb-0">
               <div className="flex-1 min-w-0 order-1">
                 <span className={`text-[10px] font-black font-sans uppercase tracking-[0.18em] ${getCategoryColor(article!.category)}`}>

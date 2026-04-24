@@ -8,11 +8,11 @@ interface LatestNewsProps {
 
 const LatestNews = ({ horizontal = false }: LatestNewsProps) => {
   const { data: articles = [] } = useArticles();
-  const items = articles.slice(1, horizontal ? 6 : 7);
+  const items = articles.slice(1, horizontal ? 8 : 8);
 
   if (horizontal) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-x divide-border">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 divide-x divide-border">
         {items.map((item) => (
           <Link key={item.slug} to={`/articulo/${item.slug}`} className="group block px-4 first:pl-0 last:pr-0 py-1">
             <div className="flex items-center gap-1.5 mb-1">
