@@ -23,13 +23,13 @@ export const AD_SLOTS: { slot: AdSlot; label: string; description: string; size:
     slot: "leaderboard",
     label: "Cabecera",
     description: "Banner bajo el header en home.",
-    size: "1400 × 90 px",
+    size: "728 × 90 px",
   },
   {
     slot: "banner",
     label: "Sección media",
     description: "Banner grande entre bloques de portada.",
-    size: "1400 × 250 px",
+    size: "970 × 250 px",
   },
   {
     slot: "inline",

@@ -36,7 +36,7 @@ const AdPlaceholder = ({ size, className = "" }: AdPlaceholderProps) => {
       <img
         src={imageUrl}
         alt={altText}
-        className="h-full w-full object-contain object-center"
+        className="h-full w-full object-cover object-center"
       />
     );
 
