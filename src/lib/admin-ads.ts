@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
-export type AdSlot = "leaderboard" | "banner" | "inline" | "sidebar";
+export type AdSlot = "leaderboard" | "banner" | "inline" | "sidebar" | "box-top" | "box-bottom";
 export type AdRecord = Tables<"ads">;
 
 export interface AdFormValues {
@@ -39,9 +39,21 @@ export const AD_SLOTS: { slot: AdSlot; label: string; description: string; size:
   },
   {
     slot: "sidebar",
-    label: "Lateral",
-    description: "Espacio reservado para futuros módulos laterales.",
+    label: "Lateral Grande",
+    description: "Banner vertical junto al grid de noticias.",
     size: "300 × 600 px",
+  },
+  {
+    slot: "box-top",
+    label: "Caja Superior",
+    description: "Caja pequeña en la parte alta del sidebar.",
+    size: "300 × 250 px",
+  },
+  {
+    slot: "box-bottom",
+    label: "Caja Inferior",
+    description: "Caja pequeña en la parte baja del sidebar.",
+    size: "300 × 250 px",
   },
 ];
 

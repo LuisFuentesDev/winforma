@@ -6,6 +6,7 @@ import { useArticles } from "@/hooks/useArticles";
 import { useThemePreference } from "@/hooks/useThemePreference";
 
 const categories = ["Regional", "Nacional", "Internacional", "Deportes", "Editorial"];
+const extraLinks = [{ label: "Tarifario", href: "/tarifario" }];
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -151,6 +152,24 @@ const Header = () => {
                 </li>
               );
             })}
+
+            {extraLinks.map(({ label, href }) => {
+              const active = location.pathname === href;
+              return (
+                <li key={href}>
+                  <Link
+                    to={href}
+                    className={`text-sm font-semibold font-sans transition-colors uppercase tracking-wide border-b-2 pb-0.5 ${
+                      active
+                        ? "text-primary border-primary"
+                        : "text-foreground hover:text-primary border-transparent"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
@@ -226,6 +245,18 @@ const Header = () => {
             </Link>
           );
         })}
+        <div className="pt-2 border-t border-border">
+          {extraLinks.map(({ label, href }) => (
+            <Link
+              key={href}
+              to={href}
+              className={`block text-base font-semibold font-sans uppercase tracking-wide ${location.pathname === href ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+              onClick={() => setMenuOpen(false)}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
       </div>
     </header>
   );

@@ -9,6 +9,7 @@ import { useArticle, useArticles } from "@/hooks/useArticles";
 import { useState } from "react";
 import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import ArticleImage from "@/components/ArticleImage";
+import { getCategoryColor, getCategoryBadge } from "@/lib/category-colors";
 
 function normalizeText(value: string) {
   return value
@@ -185,7 +186,7 @@ const ArticlePage = () => {
           <span className="text-foreground line-clamp-1">{article.title}</span>
         </nav>
 
-        <span className="block text-xs font-semibold font-sans uppercase tracking-wider text-primary mb-2">
+        <span className={`inline-block text-xs font-bold font-sans uppercase tracking-wider px-2 py-0.5 rounded-sm mb-2 ${getCategoryBadge(article.category)}`}>
           {article.category}
         </span>
 

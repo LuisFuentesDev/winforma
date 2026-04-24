@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useArticles } from "@/hooks/useArticles";
+import { getCategoryColor } from "@/lib/category-colors";
 
 const LatestNews = () => {
   const { data: articles = [] } = useArticles();
@@ -20,7 +21,7 @@ const LatestNews = () => {
                     En vivo
                   </span>
                 )}
-                <span className="text-[11px] font-semibold font-sans uppercase tracking-wider text-primary">
+                <span className={`text-[11px] font-bold font-sans uppercase tracking-wider ${getCategoryColor(item.category)}`}>
                   {item.category}
                 </span>
               </div>

@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { useArticlesByCategory } from "@/hooks/useArticles";
 import Seo from "@/components/Seo";
 import ArticleImage from "@/components/ArticleImage";
+import { getCategoryColor, getCategoryBadge } from "@/lib/category-colors";
 
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
@@ -53,7 +54,7 @@ const CategoryPage = () => {
                     className="w-full h-48 object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <span className="text-[11px] font-semibold font-sans uppercase tracking-wider text-primary">
+                <span className={`text-[11px] font-bold font-sans uppercase tracking-wider ${getCategoryColor(article.category)}`}>
                   {article.category}
                 </span>
                 <h3 className="text-lg font-bold font-serif text-foreground leading-snug mt-1 group-hover:underline decoration-1 underline-offset-2">

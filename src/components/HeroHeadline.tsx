@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useArticles } from "@/hooks/useArticles";
 import ArticleImage from "@/components/ArticleImage";
+import { getCategoryColor } from "@/lib/category-colors";
 
 const HeroHeadline = () => {
   const { data: articles = [] } = useArticles();
@@ -21,7 +22,7 @@ const HeroHeadline = () => {
           />
         </div>
         <div className="mt-4">
-          <span className="text-xs font-semibold font-sans uppercase tracking-wider text-primary">
+          <span className={`text-xs font-bold font-sans uppercase tracking-wider ${getCategoryColor(heroArticle.category)}`}>
             {heroArticle.category}
           </span>
           <h2 className="mt-1.5 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-foreground group-hover:underline decoration-2 underline-offset-4">

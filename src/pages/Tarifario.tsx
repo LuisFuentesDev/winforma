@@ -8,7 +8,9 @@ const tarifasWeb = [
   { formato: "Banner Cabecera", plataforma: "Web (Inicio)", tamano: "728 × 90 px", duracion: "7 días", valor: "$140.000" },
   { formato: "Banner Sección Media", plataforma: "Web (Inicio)", tamano: "970 × 250 px", duracion: "7 días", valor: "$110.000" },
   { formato: "Banner en Artículo", plataforma: "Web (Noticia)", tamano: "728 × 90 px", duracion: "7 días", valor: "$80.000" },
-  { formato: "Banner Lateral", plataforma: "Web (Sidebar)", tamano: "300 × 600 px", duracion: "7 días", valor: "$65.000" },
+  { formato: "Banner Lateral Grande", plataforma: "Web (Sidebar)", tamano: "300 × 600 px", duracion: "7 días", valor: "$65.000" },
+  { formato: "Caja Lateral Superior", plataforma: "Web (Sidebar)", tamano: "300 × 250 px", duracion: "7 días", valor: "$45.000" },
+  { formato: "Caja Lateral Inferior", plataforma: "Web (Sidebar)", tamano: "300 × 250 px", duracion: "7 días", valor: "$35.000" },
 ];
 
 const tarifasRRSS = [

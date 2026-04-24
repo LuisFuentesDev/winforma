@@ -7,7 +7,7 @@ const MostRead = () => {
   if (!articles.length) return null;
 
   return (
-    <section className="mb-12">
+    <section>
       <h3 className="text-lg font-bold text-foreground mb-4 pb-2 border-b-2 border-foreground">
         Más Leídas
       </h3>

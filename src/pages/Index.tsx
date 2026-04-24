@@ -5,8 +5,10 @@ import LatestNews from "@/components/LatestNews";
 import SecondaryGrid from "@/components/SecondaryGrid";
 import MostRead from "@/components/MostRead";
 import AdPlaceholder from "@/components/AdPlaceholder";
+import BreakingTicker from "@/components/BreakingTicker";
 import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import { usePageViews } from "@/hooks/usePageViews";
+import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
   usePageViews("home");
@@ -44,6 +46,7 @@ const Index = () => {
         schema={schema}
       />
       <Header />
+      <BreakingTicker />
 
       {/* Ad: Leaderboard bajo header */}
       <div className="container mx-auto px-4 pt-4">
@@ -66,11 +69,22 @@ const Index = () => {
           <AdPlaceholder size="banner" />
         </div>
 
-        {/* Most read */}
-        <MostRead />
+        {/* Secondary grid + Sidebar */}
+        <div className="lg:flex lg:gap-8 lg:items-start">
+          <div className="lg:flex-1 min-w-0">
+            <SecondaryGrid />
+          </div>
 
-        {/* Secondary articles grid */}
-        <SecondaryGrid />
+          {/* Sidebar: cajas publicitarias + Más Leídas */}
+          <aside className="hidden lg:flex lg:flex-col lg:w-[300px] shrink-0 gap-6">
+            <AdPlaceholder size="box-top" />
+            <Separator />
+            <MostRead />
+            <Separator />
+            <AdPlaceholder size="sidebar" />
+            <AdPlaceholder size="box-bottom" />
+          </aside>
+        </div>
       </main>
 
       <Footer />
