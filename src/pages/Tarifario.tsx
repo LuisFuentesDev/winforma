@@ -4,15 +4,18 @@ import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@
 import { Mail } from "lucide-react";
 import Seo from "@/components/Seo";
 
-const tarifas = [
-  { formato: "Banner Web Principal", plataforma: "Web (Inicio)", tamano: "728 x 90", duracion: "7 días", valor: "$140.000" },
-  { formato: "Banner Web Medio", plataforma: "Web (Inicio)", tamano: "970 x 250", duracion: "7 días", valor: "$110.000" },
-  { formato: "Banner Entrada Nota", plataforma: "Web (Artículo)", tamano: "728 x 90", duracion: "7 días", valor: "$80.000" },
-  { formato: "Banner Lateral Web", plataforma: "Web (Sidebar)", tamano: "300 x 600", duracion: "7 días", valor: "$65.000" },
-  { formato: "Paquete RRSS", plataforma: "Facebook + Instagram (Feed + Stories)", tamano: "Variable", duracion: "7 días", valor: "$200.000" },
-  { formato: "Reel Publicitario", plataforma: "Instagram (Feed/Reels)", tamano: "1080 x 1920", duracion: "1 día", valor: "$90.000" },
-  { formato: "Story Publicitaria", plataforma: "Instagram (Historias)", tamano: "1080 x 1920", duracion: "1 día", valor: "$35.000" },
-  { formato: "Post Anclado en Feed", plataforma: "Instagram (Feed)", tamano: "1080 x 1080 / 1080 x 1350", duracion: "1 día", valor: "$50.000" },
+const tarifasWeb = [
+  { formato: "Banner Cabecera", plataforma: "Web (Inicio)", tamano: "728 × 90 px", duracion: "7 días", valor: "$140.000" },
+  { formato: "Banner Sección Media", plataforma: "Web (Inicio)", tamano: "970 × 250 px", duracion: "7 días", valor: "$110.000" },
+  { formato: "Banner en Artículo", plataforma: "Web (Noticia)", tamano: "728 × 90 px", duracion: "7 días", valor: "$80.000" },
+  { formato: "Banner Lateral", plataforma: "Web (Sidebar)", tamano: "300 × 600 px", duracion: "7 días", valor: "$65.000" },
+];
+
+const tarifasRRSS = [
+  { formato: "Paquete RRSS", plataforma: "Facebook + Instagram", tamano: "Variable", duracion: "7 días", valor: "$200.000" },
+  { formato: "Reel Publicitario", plataforma: "Instagram (Feed / Reels)", tamano: "1080 × 1920 px", duracion: "1 día", valor: "$90.000" },
+  { formato: "Story Publicitaria", plataforma: "Instagram (Historias)", tamano: "1080 × 1920 px", duracion: "1 día", valor: "$35.000" },
+  { formato: "Post Anclado en Feed", plataforma: "Instagram (Feed)", tamano: "1080 × 1080 / 1080 × 1350 px", duracion: "1 día", valor: "$50.000" },
 ];
 
 const Tarifario = () => {
@@ -34,29 +37,68 @@ const Tarifario = () => {
             En Winforma ofrecemos espacios publicitarios en página web, Facebook e Instagram, diseñados para maximizar el alcance de tu marca en audiencias locales, regionales y nacionales. Nuestro tarifario es claro, transparente y estandarizado, con valores competitivos y formatos flexibles para todo tipo de campañas.
           </p>
 
-          <div className="rounded-lg border border-border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="font-bold text-foreground">Formato Producto</TableHead>
-                  <TableHead className="font-bold text-foreground">Plataforma</TableHead>
-                  <TableHead className="font-bold text-foreground">Tamaño (px)</TableHead>
-                  <TableHead className="font-bold text-foreground">Duración</TableHead>
-                  <TableHead className="font-bold text-foreground">Valor (CLP)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tarifas.map((t, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-medium">{t.formato}</TableCell>
-                    <TableCell>{t.plataforma}</TableCell>
-                    <TableCell>{t.tamano}</TableCell>
-                    <TableCell>{t.duracion}</TableCell>
-                    <TableCell className="font-semibold">{t.valor}</TableCell>
+          {/* Web */}
+          <div>
+            <h2 className="text-xl font-bold font-serif text-foreground mb-3 flex items-center gap-2">
+              <span className="inline-block w-1 h-5 bg-primary rounded-sm" />
+              Publicidad Web
+            </h2>
+            <div className="rounded-lg border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="font-bold text-foreground">Formato</TableHead>
+                    <TableHead className="font-bold text-foreground">Ubicación</TableHead>
+                    <TableHead className="font-bold text-foreground">Tamaño</TableHead>
+                    <TableHead className="font-bold text-foreground">Duración</TableHead>
+                    <TableHead className="font-bold text-foreground">Valor (CLP)</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {tarifasWeb.map((t, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{t.formato}</TableCell>
+                      <TableCell>{t.plataforma}</TableCell>
+                      <TableCell className="font-mono text-xs">{t.tamano}</TableCell>
+                      <TableCell>{t.duracion}</TableCell>
+                      <TableCell className="font-semibold">{t.valor}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* RRSS */}
+          <div>
+            <h2 className="text-xl font-bold font-serif text-foreground mb-3 flex items-center gap-2">
+              <span className="inline-block w-1 h-5 bg-primary rounded-sm" />
+              Publicidad Redes Sociales
+            </h2>
+            <div className="rounded-lg border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="font-bold text-foreground">Formato</TableHead>
+                    <TableHead className="font-bold text-foreground">Plataforma</TableHead>
+                    <TableHead className="font-bold text-foreground">Tamaño</TableHead>
+                    <TableHead className="font-bold text-foreground">Duración</TableHead>
+                    <TableHead className="font-bold text-foreground">Valor (CLP)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tarifasRRSS.map((t, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{t.formato}</TableCell>
+                      <TableCell>{t.plataforma}</TableCell>
+                      <TableCell className="font-mono text-xs">{t.tamano}</TableCell>
+                      <TableCell>{t.duracion}</TableCell>
+                      <TableCell className="font-semibold">{t.valor}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
 
           <div className="bg-muted/30 rounded-lg p-6 border border-border">
