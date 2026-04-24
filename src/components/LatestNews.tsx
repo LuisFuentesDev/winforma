@@ -8,13 +8,13 @@ interface LatestNewsProps {
 
 const LatestNews = ({ horizontal = false }: LatestNewsProps) => {
   const { data: articles = [] } = useArticles();
-  const items = articles.slice(1, horizontal ? 8 : 8);
+  const items = articles.slice(1, horizontal ? 9 : 8);
 
   if (horizontal) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 divide-x divide-border">
-        {items.map((item) => (
-          <Link key={item.slug} to={`/articulo/${item.slug}`} className="group block px-4 first:pl-0 last:pr-0 py-1">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-x-4 gap-y-4 lg:gap-y-0 lg:divide-x lg:divide-border [&>*:nth-child(n+5)]:border-t [&>*:nth-child(n+5)]:border-border [&>*:nth-child(n+5)]:pt-3 lg:[&>*:nth-child(n+5)]:border-t-0 lg:[&>*:nth-child(n+5)]:pt-0">
+        {items.map((item, i) => (
+          <Link key={item.slug} to={`/articulo/${item.slug}`} className={`group block lg:px-4 lg:first:pl-0 lg:last:pr-0 py-1 ${i === 7 ? "lg:hidden" : ""}`}>
             <div className="flex items-center gap-1.5 mb-1">
               {item.breaking && (
                 <span className="text-[9px] font-black font-sans uppercase text-accent">● En vivo</span>

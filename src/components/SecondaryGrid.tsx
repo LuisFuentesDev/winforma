@@ -20,12 +20,12 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 // Card con imagen arriba
 const CardVertical = ({ article }: { article: Article }) => (
   <Link to={`/articulo/${article.slug}`} className="group block">
-    <div className="overflow-hidden mb-3">
+    <div className="overflow-hidden mb-3 aspect-[5/3]">
       <ArticleImage
         src={article.image}
         alt={article.title}
         category={article.category}
-        className="w-full h-44 object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
         loading="lazy"
       />
     </div>
@@ -35,12 +35,6 @@ const CardVertical = ({ article }: { article: Article }) => (
     <h3 className="mt-1 text-[15px] font-bold font-serif leading-snug text-foreground group-hover:text-primary transition-colors">
       {article.title}
     </h3>
-    <p className="mt-1.5 text-xs font-sans leading-relaxed text-muted-foreground line-clamp-2">
-      {article.summary}
-    </p>
-    <p className="mt-1.5 text-[10px] text-muted-foreground font-sans">
-      {article.author} · {article.time}
-    </p>
   </Link>
 );
 
@@ -52,7 +46,7 @@ const CardHorizontal = ({ article }: { article: Article }) => (
         src={article.image}
         alt={article.title}
         category={article.category}
-        className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+        className="w-full h-[144px] object-cover object-top -translate-y-0 transition-transform duration-300 group-hover:scale-105"
         loading="lazy"
       />
     </div>
@@ -89,9 +83,7 @@ const CardFeatured = ({ article }: { article: Article }) => (
     <p className="mt-2 text-sm font-sans leading-relaxed text-muted-foreground line-clamp-3">
       {article.summary}
     </p>
-    <p className="mt-2 text-[10px] text-muted-foreground font-sans">
-      {article.author} · {article.time}
-    </p>
+    <p className="mt-2 text-[10px] text-muted-foreground font-sans">{article.time}</p>
   </Link>
 );
 
@@ -115,9 +107,9 @@ const SecondaryGrid = () => {
       {row1.length > 0 && (
         <div className="mb-8">
           <SectionLabel>Más noticias</SectionLabel>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 col-rule">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {row1.map((a) => (
-              <div key={a.slug} className="pr-6 first:pl-0">
+              <div key={a.slug}>
                 <CardVertical article={a} />
               </div>
             ))}

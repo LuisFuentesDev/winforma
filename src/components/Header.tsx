@@ -38,7 +38,7 @@ const Header = () => {
       {/* ── TOP STRIP ── */}
       <div className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-1.5 flex items-center justify-between gap-4">
-          <span className="text-[11px] font-sans font-medium capitalize tracking-wide opacity-90 hidden sm:block">
+          <span className="text-[11px] font-sans font-medium capitalize tracking-wide opacity-90">
             {currentDate}
           </span>
 
