@@ -6,6 +6,7 @@ import SecondaryGrid from "@/components/SecondaryGrid";
 import MostRead from "@/components/MostRead";
 import AdPlaceholder from "@/components/AdPlaceholder";
 import BreakingTicker from "@/components/BreakingTicker";
+import CookieBanner from "@/components/CookieBanner";
 import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import { usePageViews } from "@/hooks/usePageViews";
 import { Separator } from "@/components/ui/separator";
@@ -29,9 +30,7 @@ const Index = () => {
         url: SITE_URL,
         name: "WINFORMA",
         inLanguage: "es-CL",
-        publisher: {
-          "@id": ORGANIZATION_ID,
-        },
+        publisher: { "@id": ORGANIZATION_ID },
       },
     ],
   };
@@ -45,38 +44,37 @@ const Index = () => {
         keywords={["noticias", "Chile", "La Araucania", "actualidad", "regional", "nacional", "deportes"]}
         schema={schema}
       />
+
       <Header />
       <BreakingTicker />
 
-      {/* Ad: Leaderboard bajo header */}
+      {/* Leaderboard */}
       <div className="container mx-auto px-4 pt-4">
         <AdPlaceholder size="leaderboard" />
       </div>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Hero + Latest News: 65/35 split on desktop, stacked on mobile */}
-        <div className="lg:flex lg:gap-8 mb-12">
-          <div className="lg:w-[65%]">
-            <HeroHeadline />
-          </div>
-          <div className="lg:w-[35%] mt-8 lg:mt-0 lg:border-l lg:border-border lg:pl-8">
-            <LatestNews />
-          </div>
+
+        {/* ── HERO ── */}
+        <HeroHeadline />
+
+        {/* ── ÚLTIMAS: franja horizontal ── */}
+        <div className="border border-border bg-muted/30 px-4 py-4 mb-8">
+          <LatestNews horizontal />
         </div>
 
-        {/* Ad: Banner entre secciones */}
-        <div className="mb-12">
+        {/* ── BANNER ── */}
+        <div className="mb-8">
           <AdPlaceholder size="banner" />
         </div>
 
-        {/* Secondary grid + Sidebar */}
-        <div className="lg:flex lg:gap-8 lg:items-start">
+        {/* ── CUERPO PRINCIPAL + SIDEBAR ── */}
+        <div className="lg:flex lg:gap-10 lg:items-start">
           <div className="lg:flex-1 min-w-0">
             <SecondaryGrid />
           </div>
 
-          {/* Sidebar: cajas publicitarias + Más Leídas */}
-          <aside className="hidden lg:flex lg:flex-col lg:w-[300px] shrink-0 gap-6">
+          <aside className="hidden lg:flex lg:flex-col lg:w-[280px] shrink-0 gap-8 mt-1">
             <AdPlaceholder size="box-top" />
             <Separator />
             <MostRead />
@@ -85,9 +83,11 @@ const Index = () => {
             <AdPlaceholder size="box-bottom" />
           </aside>
         </div>
+
       </main>
 
       <Footer />
+      <CookieBanner />
     </div>
   );
 };

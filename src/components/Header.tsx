@@ -16,7 +16,10 @@ const Header = () => {
   const location = useLocation();
   const totalViews = useAllPageViews();
   const { data: articles = [] } = useArticles();
+  const { dark, setDark } = useThemePreference();
+
   const currentDate = new Intl.DateTimeFormat("es-CL", {
+    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -30,105 +33,68 @@ const Header = () => {
     ).slice(0, 6);
   }, [articles, searchQuery]);
 
-  const { dark, setDark } = useThemePreference();
-
   return (
-    <header className="border-b border-border">
-      {/* Top bar */}
-      <div className="container mx-auto px-4 pt-3 pb-4 lg:hidden">
-        <div className="relative flex items-center justify-between">
-          <button
-            className="text-foreground"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+    <header>
+      {/* ── TOP STRIP ── */}
+      <div className="bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 py-1.5 flex items-center justify-between gap-4">
+          <span className="text-[11px] font-sans font-medium capitalize tracking-wide opacity-90 hidden sm:block">
+            {currentDate}
+          </span>
 
-          <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-2 text-center">
-            <Link
-              to="/"
-              className="pointer-events-auto inline-block max-w-[220px] text-3xl font-black tracking-tight text-foreground hover:text-primary transition-colors"
-            >
-              WINFORMA
-            </Link>
-            <p className="absolute left-1/2 top-full z-10 w-max -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground font-sans">
-              {currentDate}
-            </p>
-          </div>
+          <span className="text-[11px] font-black font-sans uppercase tracking-[0.25em] opacity-70 hidden md:block">
+            Noticias que importan
+          </span>
 
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center gap-4 ml-auto sm:ml-0">
             {totalViews !== null && totalViews > 0 && (
-              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground font-sans">
-                <Eye size={13} />
+              <span className="inline-flex items-center gap-1 text-[11px] font-sans opacity-75">
+                <Eye size={11} />
                 {totalViews.toLocaleString()}
               </span>
             )}
-            <button
-              className="text-foreground hover:text-primary transition-colors"
-              onClick={() => setDark(!dark)}
-              aria-label="Toggle theme"
-            >
-              {dark ? <Sun size={20} /> : <Moon size={20} />}
+            <button onClick={() => setDark(!dark)} aria-label="Toggle theme" className="opacity-75 hover:opacity-100 transition-opacity">
+              {dark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
-            <button
-              className="text-foreground hover:text-primary transition-colors"
-              aria-label="Search"
-              onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }}
-            >
-              <Search size={20} />
+            <button aria-label="Search" onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }} className="opacity-75 hover:opacity-100 transition-opacity">
+              <Search size={14} />
             </button>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto hidden px-4 py-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-        <div />
+      {/* ── MASTHEAD ── */}
+      <div className="border-b-4 border-foreground">
+        <div className="container mx-auto px-4 py-5 flex items-center justify-between lg:justify-center">
 
-        <div className="text-center lg:col-start-2">
-          <Link to="/" className="text-3xl lg:text-4xl font-black tracking-tight text-foreground hover:text-primary transition-colors">
+          {/* Mobile: hamburger */}
+          <button className="lg:hidden text-foreground" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+
+          {/* Logotype */}
+          <Link to="/" className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-[-0.03em] text-foreground hover:text-primary transition-colors font-serif">
             WINFORMA
           </Link>
-          <p className="text-xs text-muted-foreground font-sans mt-0.5">
-            {currentDate}
-          </p>
-        </div>
 
-        <div className="flex items-center justify-end gap-3 lg:col-start-3">
-          {totalViews !== null && totalViews > 0 && (
-            <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground font-sans">
-              <Eye size={14} />
-              {totalViews.toLocaleString()} visitas
-            </span>
-          )}
-          <button
-            className="text-foreground hover:text-primary transition-colors"
-            onClick={() => setDark(!dark)}
-            aria-label="Toggle theme"
-          >
-            {dark ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          <button
-            className="text-foreground hover:text-primary transition-colors"
-            aria-label="Search"
-            onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }}
-          >
+          {/* Mobile: search shortcut */}
+          <button className="lg:hidden text-foreground" onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }}>
             <Search size={20} />
           </button>
         </div>
       </div>
 
-      {/* Category nav - desktop */}
-      <nav className="hidden lg:block border-t border-border">
+      {/* ── CATEGORY NAV — desktop ── */}
+      <nav className="hidden lg:block border-b border-border bg-background sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-4">
-          <ul className="flex gap-8 py-2.5">
+          <ul className="flex items-center gap-0 py-0">
             <li>
               <Link
                 to="/"
-                className={`text-sm font-semibold font-sans transition-colors uppercase tracking-wide border-b-2 pb-0.5 ${
+                className={`inline-block px-4 py-3 text-[12px] font-bold font-sans uppercase tracking-[0.12em] transition-colors border-b-2 ${
                   location.pathname === "/"
-                    ? "text-primary border-primary"
-                    : "text-foreground hover:text-primary border-transparent"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-foreground hover:text-primary"
                 }`}
               >
                 Inicio
@@ -141,10 +107,10 @@ const Header = () => {
                 <li key={cat}>
                   <Link
                     to={href}
-                    className={`text-sm font-semibold font-sans transition-colors uppercase tracking-wide border-b-2 pb-0.5 ${
+                    className={`inline-block px-4 py-3 text-[12px] font-bold font-sans uppercase tracking-[0.12em] transition-colors border-b-2 ${
                       active
-                        ? "text-primary border-primary"
-                        : "text-foreground hover:text-primary border-transparent"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-foreground hover:text-primary"
                     }`}
                   >
                     {cat}
@@ -152,112 +118,89 @@ const Header = () => {
                 </li>
               );
             })}
-
-            {extraLinks.map(({ label, href }) => {
-              const active = location.pathname === href;
-              return (
-                <li key={href}>
+            <li className="ml-auto">
+              {extraLinks.map(({ label, href }) => {
+                const active = location.pathname === href;
+                return (
                   <Link
+                    key={href}
                     to={href}
-                    className={`text-sm font-semibold font-sans transition-colors uppercase tracking-wide border-b-2 pb-0.5 ${
-                      active
-                        ? "text-primary border-primary"
-                        : "text-foreground hover:text-primary border-transparent"
+                    className={`inline-block px-4 py-3 text-[12px] font-bold font-sans uppercase tracking-[0.12em] transition-colors border-b-2 ${
+                      active ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-primary"
                     }`}
                   >
                     {label}
                   </Link>
-                </li>
-              );
-            })}
+                );
+              })}
+            </li>
           </ul>
         </div>
       </nav>
 
+      {/* ── MOBILE MENU ── */}
+      <div className={`lg:hidden bg-background border-b border-border overflow-hidden transition-all duration-200 ease-in-out ${menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+        <div className="container mx-auto px-4 py-4 space-y-1">
+          <Link to="/" className={`block py-2 text-sm font-bold font-sans uppercase tracking-widest ${location.pathname === "/" ? "text-primary" : "text-foreground"}`} onClick={() => setMenuOpen(false)}>
+            Inicio
+          </Link>
+          {categories.map((cat) => {
+            const href = `/seccion/${encodeURIComponent(cat)}`;
+            return (
+              <Link key={cat} to={href} className={`block py-2 text-sm font-bold font-sans uppercase tracking-widest ${location.pathname === href ? "text-primary" : "text-foreground"}`} onClick={() => setMenuOpen(false)}>
+                {cat}
+              </Link>
+            );
+          })}
+          <div className="pt-2 border-t border-border">
+            {extraLinks.map(({ label, href }) => (
+              <Link key={href} to={href} className="block py-2 text-sm font-bold font-sans uppercase tracking-widest text-muted-foreground" onClick={() => setMenuOpen(false)}>
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
 
-      {/* Search overlay */}
+      {/* ── SEARCH OVERLAY ── */}
       {searchOpen && (
-        <div className="border-t border-border bg-card px-4 py-4">
+        <div className="border-b border-border bg-muted/30 px-4 py-4">
           <div className="container mx-auto max-w-2xl">
-            <div className="flex items-center gap-2 border border-border rounded-md px-3 py-2 bg-background">
-              <Search size={16} className="text-muted-foreground shrink-0" />
+            <div className="flex items-center gap-2 border border-foreground/20 px-3 py-2 bg-background">
+              <Search size={15} className="text-muted-foreground shrink-0" />
               <input
                 type="text"
                 placeholder="Buscar noticias..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
+                className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground font-sans"
                 autoFocus
               />
               <button onClick={() => setSearchOpen(false)} className="text-muted-foreground hover:text-foreground">
-                <X size={16} />
+                <X size={15} />
               </button>
             </div>
             {searchResults.length > 0 && (
-              <ul className="mt-2 divide-y divide-border">
+              <ul className="mt-2 divide-y divide-border bg-background border border-border">
                 {searchResults.map((article) => (
                   <li key={article.slug}>
                     <button
-                      className="w-full text-left py-2.5 hover:bg-muted/50 px-2 rounded-sm transition-colors"
-                      onClick={() => {
-                        setSearchOpen(false);
-                        setSearchQuery("");
-                        navigate(`/articulo/${article.slug}`);
-                      }}
+                      className="w-full text-left py-3 px-3 hover:bg-muted/50 transition-colors"
+                      onClick={() => { setSearchOpen(false); setSearchQuery(""); navigate(`/articulo/${article.slug}`); }}
                     >
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">{article.category}</span>
-                      <p className="text-sm font-bold text-foreground leading-snug">{article.title}</p>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary font-sans">{article.category}</span>
+                      <p className="text-sm font-bold text-foreground leading-snug font-serif">{article.title}</p>
                     </button>
                   </li>
                 ))}
               </ul>
             )}
             {searchQuery.trim() && searchResults.length === 0 && (
-              <p className="mt-3 text-sm text-muted-foreground text-center">No se encontraron resultados.</p>
+              <p className="mt-3 text-sm text-muted-foreground text-center font-sans">No se encontraron resultados.</p>
             )}
           </div>
         </div>
       )}
-
-      {/* Mobile menu overlay */}
-      <div
-        className={`lg:hidden border-t border-border bg-card px-4 space-y-3 overflow-hidden transition-all duration-200 ease-in-out ${
-          menuOpen ? "max-h-96 py-4 opacity-100" : "max-h-0 py-0 opacity-0"
-        }`}
-      >
-        <Link
-          to="/"
-          className={`block text-base font-semibold font-sans uppercase tracking-wide ${location.pathname === "/" ? "text-primary" : "text-foreground hover:text-primary"}`}
-          onClick={() => setMenuOpen(false)}
-        >
-          Inicio
-        </Link>
-        {categories.map((cat) => {
-          const href = `/seccion/${encodeURIComponent(cat)}`;
-          return (
-            <Link
-              key={cat}
-              to={href}
-              className={`block text-base font-semibold font-sans uppercase tracking-wide ${location.pathname === href ? "text-primary" : "text-foreground hover:text-primary"}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              {cat}
-            </Link>
-          );
-        })}
-        <div className="pt-2 border-t border-border">
-          {extraLinks.map(({ label, href }) => (
-            <Link
-              key={href}
-              to={href}
-              className={`block text-base font-semibold font-sans uppercase tracking-wide ${location.pathname === href ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
-      </div>
     </header>
   );
 };
