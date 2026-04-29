@@ -103,6 +103,10 @@ const Tarifario = () => {
             </div>
           </div>
 
+          <p className="text-sm text-muted-foreground">
+            * Los valores indicados no incluyen IVA.
+          </p>
+
           <div className="bg-muted/30 rounded-lg p-6 border border-border">
             <p className="flex items-center gap-2 text-lg font-bold mb-3">
               <Mail className="w-5 h-5 text-primary" />
