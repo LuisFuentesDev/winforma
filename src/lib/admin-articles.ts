@@ -155,6 +155,18 @@ export async function uploadArticleImage(file: File, slug: string) {
   return data.publicUrl;
 }
 
+export async function deleteAdminArticle(id: string) {
+  if (!supabase) {
+    throw new Error("Supabase no está configurado.");
+  }
+
+  const { error } = await supabase.from("articles").delete().eq("id", id);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function saveAdminArticle(values: AdminArticleFormValues) {
   if (!supabase) {
     throw new Error("Supabase no está configurado.");

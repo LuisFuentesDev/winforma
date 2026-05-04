@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Plus, RefreshCw, Upload } from "lucide-react";
+import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
 import {
   ADMIN_CATEGORIES,
   createEmptyArticleForm,
+  deleteAdminArticle,
   fetchAdminArticles,
   mapArticleToForm,
   saveAdminArticle,
@@ -65,6 +66,7 @@ const AdminPage = () => {
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const [form, setForm] = useState<AdminArticleFormValues>(createEmptyArticleForm());
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [ads, setAds] = useState<AdRecord[]>([]);
   const [selectedAdSlot, setSelectedAdSlot] = useState<AdFormValues["slot"]>("leaderboard");
@@ -240,6 +242,24 @@ const AdminPage = () => {
       toast.error(error instanceof Error ? error.message : "No se pudo guardar la noticia.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!form.id) return;
+    if (!window.confirm(`¿Eliminar permanentemente "${form.title}"? Esta acción no se puede deshacer.`)) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteAdminArticle(form.id);
+      setArticles((current) => current.filter((a) => a.id !== form.id));
+      setSelectedArticleId(null);
+      setForm(createEmptyArticleForm());
+      toast.success("Noticia eliminada.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo eliminar la noticia.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -638,7 +658,19 @@ const AdminPage = () => {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                {form.id && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => void handleDelete()}
+                    disabled={isDeleting || isSaving}
+                    className="mr-auto"
+                  >
+                    <Trash2 size={15} className="mr-2" />
+                    {isDeleting ? "Eliminando..." : "Eliminar"}
+                  </Button>
+                )}
                 <Button type="submit" variant="outline" disabled={isSaving}>
                   {isSaving ? "Guardando..." : "Guardar cambios"}
                 </Button>
