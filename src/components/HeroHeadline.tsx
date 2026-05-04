@@ -3,8 +3,34 @@ import { useArticles } from "@/hooks/useArticles";
 import ArticleImage from "@/components/ArticleImage";
 import { getCategoryColor } from "@/lib/category-colors";
 
+const HeroSkeleton = () => (
+  <div className="grid grid-cols-1 lg:grid-cols-[1fr_2px_1fr] gap-0 border-b border-border pb-6 mb-6 animate-pulse">
+    <div className="pr-0 lg:pr-8">
+      <div className="w-full h-[260px] md:h-[340px] lg:h-[420px] bg-muted rounded" />
+      <div className="mt-4 h-3 w-20 bg-muted rounded" />
+      <div className="mt-3 h-8 w-full bg-muted rounded" />
+      <div className="mt-2 h-8 w-3/4 bg-muted rounded" />
+      <div className="mt-3 h-4 w-full bg-muted rounded" />
+      <div className="mt-1 h-4 w-5/6 bg-muted rounded" />
+    </div>
+    <div className="hidden lg:block bg-border" />
+    <div className="lg:pl-8 divide-y divide-border">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="flex gap-4 py-3 first:pt-0">
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-16 bg-muted rounded" />
+            <div className="h-4 w-full bg-muted rounded" />
+            <div className="h-4 w-4/5 bg-muted rounded" />
+          </div>
+          <div className="w-20 h-20 shrink-0 bg-muted rounded" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const HeroHeadline = () => {
-  const { data: articles = [] } = useArticles();
+  const { data: articles = [], isLoading } = useArticles();
   const main = articles[0];
   const sub1 = articles[1];
   const sub2 = articles[2];
@@ -13,6 +39,7 @@ const HeroHeadline = () => {
   const sub5 = articles[5];
   const sub6 = articles[6];
 
+  if (isLoading) return <HeroSkeleton />;
   if (!main) return null;
 
   return (

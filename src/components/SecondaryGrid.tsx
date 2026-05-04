@@ -87,13 +87,36 @@ const CardFeatured = ({ article }: { article: Article }) => (
   </Link>
 );
 
+const SecondaryGridSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-3 h-3 bg-muted rotate-45 shrink-0" />
+        <div className="h-3 w-24 bg-muted rounded" />
+        <div className="flex-1 border-t border-border" />
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i}>
+            <div className="aspect-[5/3] bg-muted rounded mb-3" />
+            <div className="h-3 w-16 bg-muted rounded mb-2" />
+            <div className="h-4 w-full bg-muted rounded" />
+            <div className="h-4 w-3/4 bg-muted rounded mt-1" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const SecondaryGrid = () => {
-  const { data: articles = [] } = useArticles();
+  const { data: articles = [], isLoading } = useArticles();
   const [limit, setLimit] = useState(PAGE_SIZE);
-  const pool = articles.slice(4); // hero usa 0-3
+  const pool = articles.slice(4);
   const visible = pool.slice(0, limit);
   const hasMore = limit < pool.length;
 
+  if (isLoading) return <SecondaryGridSkeleton />;
   if (!visible.length) return null;
 
   const row1 = visible.slice(0, 4);     // 4 columnas iguales
