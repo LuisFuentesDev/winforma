@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
+import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Moon, Plus, RefreshCw, Sun, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ const AdminPage = () => {
   const [adForm, setAdForm] = useState<AdFormValues>(createEmptyAdForm("leaderboard"));
   const [isSavingAd, setIsSavingAd] = useState(false);
   const [isUploadingAdImage, setIsUploadingAdImage] = useState(false);
-  useThemePreference();
+  const { dark, setDark } = useThemePreference();
 
   const selectedArticle = useMemo(
     () => articles.find((article) => article.id === selectedArticleId) ?? null,
@@ -400,6 +400,9 @@ const AdminPage = () => {
               <Plus size={16} className="mr-2" />
               Nueva noticia
             </Button>
+            <Button type="button" variant="ghost" onClick={() => setDark(!dark)} aria-label="Toggle theme">
+              {dark ? <Sun size={16} /> : <Moon size={16} />}
+            </Button>
             <Button type="button" variant="ghost" onClick={handleLogout}>
               <LogOut size={16} className="mr-2" />
               Salir
@@ -624,9 +627,9 @@ const AdminPage = () => {
               <div className="rounded-xl border border-dashed border-border p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <p className="font-semibold text-foreground">Subir imagen al bucket</p>
+                    <p className="font-semibold text-foreground">Subir imagen</p>
                     <p className="text-sm text-muted-foreground">
-                      La imagen se guarda en Supabase Storage y queda lista para la web.
+                      Tamaño recomendado: 1200 × 675 px.
                     </p>
                   </div>
 
@@ -658,14 +661,13 @@ const AdminPage = () => {
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center justify-end gap-2 flex-nowrap overflow-x-auto">
                 {form.id && (
                   <Button
                     type="button"
                     variant="destructive"
                     onClick={() => void handleDelete()}
                     disabled={isDeleting || isSaving}
-                    className="mr-auto"
                   >
                     <Trash2 size={15} className="mr-2" />
                     {isDeleting ? "Eliminando..." : "Eliminar"}
