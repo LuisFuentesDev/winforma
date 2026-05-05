@@ -5,19 +5,20 @@ import { Mail } from "lucide-react";
 import Seo from "@/components/Seo";
 
 const tarifasWeb = [
-  { formato: "Banner Cabecera", plataforma: "Web (Inicio)", tamano: "728 × 90 px", duracion: "7 días", valor: "$140.000" },
-  { formato: "Banner Sección Media", plataforma: "Web (Inicio)", tamano: "970 × 250 px", duracion: "7 días", valor: "$110.000" },
-  { formato: "Banner en Artículo", plataforma: "Web (Noticia)", tamano: "728 × 90 px", duracion: "7 días", valor: "$80.000" },
-  { formato: "Banner Lateral Grande", plataforma: "Web (Sidebar)", tamano: "300 × 600 px", duracion: "7 días", valor: "$65.000" },
-  { formato: "Caja Lateral Superior", plataforma: "Web (Sidebar)", tamano: "300 × 250 px", duracion: "7 días", valor: "$45.000" },
   { formato: "Caja Lateral Inferior", plataforma: "Web (Sidebar)", tamano: "300 × 250 px", duracion: "7 días", valor: "$35.000" },
+  { formato: "Caja Lateral Superior", plataforma: "Web (Sidebar)", tamano: "300 × 250 px", duracion: "7 días", valor: "$45.000" },
+  { formato: "Banner Lateral Grande", plataforma: "Web (Sidebar)", tamano: "300 × 600 px", duracion: "7 días", valor: "$65.000" },
+  { formato: "Banner en Artículo", plataforma: "Web (Noticia)", tamano: "728 × 90 px", duracion: "7 días", valor: "$80.000" },
+  { formato: "Banner Sección Media", plataforma: "Web (Inicio)", tamano: "970 × 250 px", duracion: "7 días", valor: "$110.000" },
+  { formato: "Banner Cabecera", plataforma: "Web (Inicio)", tamano: "728 × 90 px", duracion: "7 días", valor: "$140.000" },
 ];
 
 const tarifasRRSS = [
+  { formato: "Story", plataforma: "Instagram (Historias)", tamano: "1080 × 1920 px", duracion: "1 día", valor: "$35.000" },
+  { formato: "Publicación en Feed", plataforma: "Instagram (Feed)", tamano: "1080 × 1080 / 1080 × 1350 px", duracion: "1 día", valor: "$50.000" },
+  { formato: "Publicación en Carrusel", plataforma: "Instagram (Feed)", tamano: "1080 × 1080 px c/u", duracion: "1 día", valor: "$65.000" },
+  { formato: "Reel", plataforma: "Instagram (Reels)", tamano: "1080 × 1920 px", duracion: "1 día", valor: "$90.000" },
   { formato: "Paquete RRSS", plataforma: "Facebook + Instagram", tamano: "Variable", duracion: "7 días", valor: "$200.000" },
-  { formato: "Reel Publicitario", plataforma: "Instagram (Feed / Reels)", tamano: "1080 × 1920 px", duracion: "1 día", valor: "$90.000" },
-  { formato: "Story Publicitaria", plataforma: "Instagram (Historias)", tamano: "1080 × 1920 px", duracion: "1 día", valor: "$35.000" },
-  { formato: "Post Anclado en Feed", plataforma: "Instagram (Feed)", tamano: "1080 × 1080 / 1080 × 1350 px", duracion: "1 día", valor: "$50.000" },
 ];
 
 const Tarifario = () => {
