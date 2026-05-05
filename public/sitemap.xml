@@ -6,4 +6,7 @@
   <sitemap>
     <loc>https://winforma.cl/sitemap.php</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://winforma.cl/api/news-sitemap</loc>
+  </sitemap>
 </sitemapindex>
