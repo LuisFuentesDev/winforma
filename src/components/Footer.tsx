@@ -147,6 +147,11 @@ const Footer = () => {
                   Política de privacidad
                 </Link>
               </li>
+              <li>
+                <Link to="/terminos" className="text-sm font-sans opacity-60 hover:opacity-100 transition-opacity">
+                  Términos del servicio
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

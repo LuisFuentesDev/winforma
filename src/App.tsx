@@ -9,6 +9,7 @@ import ArticlePage from "./pages/ArticlePage.tsx";
 import CategoryPage from "./pages/CategoryPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
+import TermsOfService from "./pages/TermsOfService.tsx";
 import Tarifario from "./pages/Tarifario.tsx";
 import AdminPage from "./pages/AdminPage.tsx";
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/articulo/:slug" element={<ArticlePage />} />
           <Route path="/seccion/:category" element={<CategoryPage />} />
           <Route path="/politica-de-privacidad" element={<PrivacyPolicy />} />
+          <Route path="/terminos" element={<TermsOfService />} />
           <Route path="/tarifario" element={<Tarifario />} />
           <Route path="/admin" element={<AdminPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
