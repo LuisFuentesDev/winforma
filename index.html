@@ -39,6 +39,19 @@
       gtag('consent', 'default', { analytics_storage: 'denied' });
     </script>
 
+    <!-- Google Reader Revenue Manager -->
+    <script async type="application/javascript" src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
+    <script>
+      (self.SWG_BASIC = self.SWG_BASIC || []).push(basicSubscriptions => {
+        basicSubscriptions.init({
+          type: "NewsArticle",
+          isPartOfType: ["Product"],
+          isPartOfProductId: "CAowmZjgCw:openaccess",
+          clientOptions: { theme: "light", lang: "es" },
+        });
+      });
+    </script>
+
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7253859433508508" crossorigin="anonymous"></script>
 
