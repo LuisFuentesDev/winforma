@@ -28,6 +28,10 @@
     {
       "source": "/admin",
       "destination": "/index.html"
+    },
+    {
+      "source": "/terminos",
+      "destination": "/index.html"
     }
   ]
 }
