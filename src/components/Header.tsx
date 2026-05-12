@@ -5,7 +5,7 @@ import { useAllPageViews } from "@/hooks/usePageViews";
 import { useArticles } from "@/hooks/useArticles";
 import { useThemePreference } from "@/hooks/useThemePreference";
 
-const categories = ["Regional", "Nacional", "Internacional", "Deportes", "Editorial"];
+const categories = ["Regional", "Nacional", "Internacional", "Deportes", "Reportajes", "Editorial"];
 const extraLinks = [{ label: "Tarifario", href: "/tarifario" }];
 
 const Header = () => {
