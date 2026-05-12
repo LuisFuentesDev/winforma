@@ -25,6 +25,7 @@ export const ADMIN_CATEGORIES = [
   "Nacional",
   "Internacional",
   "Deportes",
+  "Reportajes",
   "Editorial",
 ] as const;
 

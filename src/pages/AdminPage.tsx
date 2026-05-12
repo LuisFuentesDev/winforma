@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminSession } from "@/hooks/useAdminSession";
 import { useThemePreference } from "@/hooks/useThemePreference";
+import BlockEditor, { type Block, blocksToHtml, htmlToBlocks } from "@/components/BlockEditor";
 import {
   AD_SLOTS,
   createEmptyAdForm,
@@ -65,6 +66,7 @@ const AdminPage = () => {
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const [form, setForm] = useState<AdminArticleFormValues>(createEmptyArticleForm());
+  const [blocks, setBlocks] = useState<Block[]>([{ type: "text", content: "" }]);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -115,7 +117,9 @@ const AdminPage = () => {
 
   useEffect(() => {
     if (!selectedArticle) return;
-    setForm(mapArticleToForm(selectedArticle));
+    const mapped = mapArticleToForm(selectedArticle);
+    setForm(mapped);
+    setBlocks(htmlToBlocks(mapped.content));
   }, [selectedArticle]);
 
   useEffect(() => {
@@ -195,6 +199,7 @@ const AdminPage = () => {
   const handleNewArticle = () => {
     setSelectedArticleId(null);
     setForm(createEmptyArticleForm());
+    setBlocks([{ type: "text", content: "" }]);
   };
 
   const handleSlugSuggest = () => {
@@ -225,6 +230,7 @@ const AdminPage = () => {
     try {
       const saved = await saveAdminArticle({
         ...form,
+        content: blocksToHtml(blocks),
         status: status ?? form.status,
       });
 
@@ -235,8 +241,10 @@ const AdminPage = () => {
             new Date(right.published_at).getTime() - new Date(left.published_at).getTime(),
         );
       });
+      const mapped = mapArticleToForm(saved);
       setSelectedArticleId(saved.id);
-      setForm(mapArticleToForm(saved));
+      setForm(mapped);
+      setBlocks(htmlToBlocks(mapped.content));
       toast.success(status === "published" ? "Noticia publicada." : "Cambios guardados.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo guardar la noticia.");
@@ -589,14 +597,14 @@ const AdminPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="admin-content">Contenido</Label>
-                <Textarea
-                  id="admin-content"
-                  value={form.content}
-                  onChange={(event) => updateForm("content", event.target.value)}
-                  placeholder="Puedes pegar HTML o texto con párrafos separados por líneas en blanco."
-                  rows={14}
-                  required
+                <Label>Contenido</Label>
+                <p className="text-xs text-muted-foreground">
+                  Escribe párrafos y agrega fotos entre ellos usando los botones que aparecen al pasar el mouse sobre cada bloque.
+                </p>
+                <BlockEditor
+                  blocks={blocks}
+                  onChange={setBlocks}
+                  articleSlug={form.slug || form.title || "imagen"}
                 />
               </div>
 
