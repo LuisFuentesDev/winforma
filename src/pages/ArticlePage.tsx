@@ -241,7 +241,15 @@ const ArticlePage = () => {
         <div
           className="prose prose-lg max-w-none font-serif text-foreground
             [&>*:first-child]:mt-0 [&_p]:mb-5 [&_p]:leading-loose [&_p]:text-base
-            [&_p:first-child]:mt-0 md:[&_p]:text-lg"
+            [&_p:first-child]:mt-0 md:[&_p]:text-lg
+            [&_h2]:text-2xl [&_h2]:font-black [&_h2]:font-serif [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:leading-tight
+            [&_h3]:text-xl [&_h3]:font-bold [&_h3]:font-serif [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:leading-tight
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-5 [&_ul_li]:mb-1.5
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-5 [&_ol_li]:mb-1.5
+            [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:my-6 [&_blockquote]:font-sans
+            [&_figure]:my-8 [&_figure]:mx-0
+            [&_figure_img]:w-full [&_figure_img]:rounded-lg [&_figure_img]:mb-0
+            [&_figcaption]:!mt-2 [&_figcaption]:!mb-0 [&_figcaption]:!text-xs [&_figcaption]:!leading-snug [&_figcaption]:!font-sans [&_figcaption]:!not-italic [&_figcaption]:!text-muted-foreground"
           dangerouslySetInnerHTML={{ __html: sanitizeArticleContent(article.content, article.title) }}
         />
 
