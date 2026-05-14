@@ -30,6 +30,11 @@ export default async function handler(req, res) {
       }
     }
 
+    // DEBUG — eliminar después
+    if (accountData.error || Object.values(accountTotals).every(v => v === 0)) {
+      return res.status(200).json({ _accountDebug: accountData });
+    }
+
     // Últimos 20 posts — reach, saves, likes, comments, shares por post
     const mediaRes = await fetch(
       `https://graph.instagram.com/me/media?fields=id,media_type&limit=20&access_token=${token}`
