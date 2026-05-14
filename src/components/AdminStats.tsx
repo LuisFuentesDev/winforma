@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone } from "lucide-react";
+import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, MessageCircle, Camera } from "lucide-react";
 import type { AdminArticleRecord } from "@/lib/admin-articles";
 import { useGA4Stats } from "@/hooks/useGA4Stats";
+import { useInstagramStats } from "@/hooks/useInstagramStats";
+
+type StatsTab = "web" | "instagram";
 
 interface PageViewRow {
   page_slug: string;
@@ -101,7 +104,9 @@ function DailyChart({ rows }: { rows: { date: string; sessions: number; users: n
 export default function AdminStats({ articles }: AdminStatsProps) {
   const [pageViews, setPageViews] = useState<PageViewRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statsTab, setStatsTab] = useState<StatsTab>("web");
   const { data: ga4, loading: ga4Loading } = useGA4Stats();
+  const { data: ig, loading: igLoading } = useInstagramStats();
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return; }
@@ -150,8 +155,107 @@ export default function AdminStats({ articles }: AdminStatsProps) {
   const ga4Sessions = ga4Rows.reduce((s, r) => s + r.sessions, 0);
   const ga4Users = ga4Rows.reduce((s, r) => s + r.users, 0);
 
+  const totalLikes = ig?.media?.reduce((s, m) => s + (m.like_count ?? 0), 0) ?? 0;
+  const totalComments = ig?.media?.reduce((s, m) => s + (m.comments_count ?? 0), 0) ?? 0;
+
   return (
     <div className="space-y-6">
+
+      {/* Sub-pestañas */}
+      <div className="flex rounded-xl border border-border bg-card overflow-hidden">
+        {(["web", "instagram"] as StatsTab[]).map((t) => {
+          const labels: Record<StatsTab, string> = { web: "Sitio web", instagram: "Instagram" };
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setStatsTab(t)}
+              className={`flex-1 py-2.5 text-sm font-bold font-sans transition-colors ${
+                statsTab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {labels[t]}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── INSTAGRAM ── */}
+      {statsTab === "instagram" && (
+        <div className="space-y-6">
+          {igLoading && (
+            <p className="text-sm text-muted-foreground font-sans py-8 text-center">Cargando datos de Instagram...</p>
+          )}
+          {!igLoading && !ig?.configured && (
+            <div className="rounded-xl border border-dashed border-border bg-muted/20 px-5 py-5 space-y-2">
+              <p className="text-sm font-bold text-foreground font-sans">Conectar Instagram</p>
+              <p className="text-xs text-muted-foreground font-sans">
+                Agrega la variable <code className="bg-muted px-1 rounded text-primary">INSTAGRAM_ACCESS_TOKEN</code> en Vercel con el token de acceso de tu cuenta Business.
+              </p>
+            </div>
+          )}
+          {!igLoading && ig?.error && (
+            <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive font-sans">
+              Error Instagram: {ig.error}
+            </div>
+          )}
+          {!igLoading && ig?.configured && !ig?.error && ig.profile && (
+            <>
+              {/* Perfil */}
+              <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+                {ig.profile.picture ? (
+                  <img src={ig.profile.picture} alt={ig.profile.username} className="w-14 h-14 rounded-full object-cover" />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
+                    <Camera size={24} className="text-muted-foreground" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-black text-lg text-foreground">@{ig.profile.username}</p>
+                  <p className="text-xs text-muted-foreground font-sans">Cuenta de Instagram Business</p>
+                </div>
+              </div>
+
+              {/* KPIs */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <StatCard icon={<Users size={18} />} label="Seguidores" value={ig.profile.followers} />
+                <StatCard icon={<FileText size={18} />} label="Publicaciones" value={ig.profile.mediaCount} />
+                <StatCard icon={<Heart size={18} />} label="Likes (últimos 12 posts)" value={totalLikes} sub={`${totalComments} comentarios`} />
+              </div>
+
+              {/* Grid de últimos posts */}
+              {ig.media && ig.media.length > 0 && (
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-foreground font-sans mb-4">
+                    Últimas publicaciones
+                  </h3>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {ig.media.map((post) => {
+                      const thumb = post.thumbnail_url ?? post.media_url ?? "";
+                      return (
+                        <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer" className="group relative aspect-square overflow-hidden rounded-lg bg-muted">
+                          {thumb && <img src={thumb} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-105" />}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                            <span className="flex items-center gap-1 text-white text-xs font-bold">
+                              <Heart size={12} /> {post.like_count ?? 0}
+                            </span>
+                            <span className="flex items-center gap-1 text-white text-xs font-bold">
+                              <MessageCircle size={12} /> {post.comments_count ?? 0}
+                            </span>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── WEB ── */}
+      {statsTab === "web" && <>
 
       {/* Gráfico GA4 */}
       {ga4Loading && (
@@ -238,6 +342,7 @@ export default function AdminStats({ articles }: AdminStatsProps) {
         </div>
       </div>
 
+      </>}
     </div>
   );
 }
