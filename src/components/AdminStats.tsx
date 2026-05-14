@@ -6,6 +6,7 @@ import { useGA4Stats } from "@/hooks/useGA4Stats";
 import { useInstagramStats } from "@/hooks/useInstagramStats";
 
 type StatsTab = "web" | "instagram";
+type GA4Period = "daily" | "monthly";
 
 interface PageViewRow {
   page_slug: string;
@@ -42,24 +43,35 @@ function MiniBar({ value, max, label }: { value: number; max: number; label: str
   );
 }
 
-function DailyChart({ rows }: { rows: { date: string; sessions: number; users: number; pageviews: number }[] }) {
+function GA4Chart({
+  rows,
+  period,
+}: {
+  rows: { date: string; sessions: number; users: number; pageviews: number }[];
+  period: GA4Period;
+}) {
   const maxVal = Math.max(...rows.map((r) => r.pageviews), 1);
 
-  const formatDate = (d: string) => {
-    // d = "20260512" → "12/05"
+  const formatLabel = (d: string) => {
+    if (period === "monthly") {
+      // "202605" → "may 26"
+      const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+      const m = parseInt(d.slice(4, 6), 10) - 1;
+      return `${months[m]} ${d.slice(2, 4)}`;
+    }
+    // "20260512" → "12/05"
     return `${d.slice(6, 8)}/${d.slice(4, 6)}`;
   };
 
   const totSessions = rows.reduce((s, r) => s + r.sessions, 0);
   const totUsers = rows.reduce((s, r) => s + r.users, 0);
   const totPageviews = rows.reduce((s, r) => s + r.pageviews, 0);
+  const title = period === "monthly" ? "Últimos 12 meses — Google Analytics" : "Últimos 30 días — Google Analytics";
 
   return (
     <div className="rounded-xl border border-border bg-card p-5 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-black uppercase tracking-widest text-foreground font-sans">
-          Últimos 30 días — Google Analytics
-        </h3>
+        <h3 className="text-sm font-black uppercase tracking-widest text-foreground font-sans">{title}</h3>
         <div className="flex gap-4 text-xs font-sans text-muted-foreground">
           <span><strong className="text-foreground">{totPageviews.toLocaleString("es-CL")}</strong> páginas vistas</span>
           <span><strong className="text-foreground">{totSessions.toLocaleString("es-CL")}</strong> sesiones</span>
@@ -67,16 +79,14 @@ function DailyChart({ rows }: { rows: { date: string; sessions: number; users: n
         </div>
       </div>
 
-      {/* Gráfico de barras */}
       <div className="flex items-end gap-0.5 h-28 w-full">
         {rows.map((r) => {
           const pct = Math.round((r.pageviews / maxVal) * 100);
           return (
             <div key={r.date} className="group relative flex-1 flex flex-col items-center justify-end h-full">
-              {/* Tooltip */}
               <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-10 pointer-events-none">
                 <div className="rounded bg-foreground text-background text-[10px] font-sans px-2 py-1 whitespace-nowrap shadow">
-                  <p className="font-bold">{formatDate(r.date)}</p>
+                  <p className="font-bold">{formatLabel(r.date)}</p>
                   <p>{r.pageviews.toLocaleString("es-CL")} vistas</p>
                   <p>{r.sessions.toLocaleString("es-CL")} sesiones</p>
                 </div>
@@ -91,10 +101,9 @@ function DailyChart({ rows }: { rows: { date: string; sessions: number; users: n
         })}
       </div>
 
-      {/* Eje x — solo mostrar algunos labels */}
       <div className="flex justify-between text-[9px] font-sans text-muted-foreground px-0.5">
         {rows.filter((_, i) => i === 0 || i === Math.floor(rows.length / 2) || i === rows.length - 1).map((r) => (
-          <span key={r.date}>{formatDate(r.date)}</span>
+          <span key={r.date}>{formatLabel(r.date)}</span>
         ))}
       </div>
     </div>
@@ -105,7 +114,8 @@ export default function AdminStats({ articles }: AdminStatsProps) {
   const [pageViews, setPageViews] = useState<PageViewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [statsTab, setStatsTab] = useState<StatsTab>("web");
-  const { data: ga4, loading: ga4Loading } = useGA4Stats();
+  const [ga4Period, setGa4Period] = useState<GA4Period>("daily");
+  const { data: ga4, loading: ga4Loading } = useGA4Stats(ga4Period);
   const { data: ig, loading: igLoading } = useInstagramStats();
 
   useEffect(() => {
@@ -235,11 +245,39 @@ export default function AdminStats({ articles }: AdminStatsProps) {
       )}
       {!ga4Loading && ga4?.configured && !ga4?.error && ga4Rows.length > 0 && (
         <>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <StatCard icon={<Users size={18} />} label="Usuarios únicos (30d)" value={ga4Users} sub="Google Analytics" />
-            <StatCard icon={<MonitorSmartphone size={18} />} label="Sesiones (30d)" value={ga4Sessions} sub="Google Analytics" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="grid flex-1 gap-3 sm:grid-cols-2">
+              <StatCard
+                icon={<Users size={18} />}
+                label={ga4Period === "monthly" ? "Usuarios únicos (12m)" : "Usuarios únicos (30d)"}
+                value={ga4Users}
+                sub="Google Analytics"
+              />
+              <StatCard
+                icon={<MonitorSmartphone size={18} />}
+                label={ga4Period === "monthly" ? "Sesiones (12m)" : "Sesiones (30d)"}
+                value={ga4Sessions}
+                sub="Google Analytics"
+              />
+            </div>
           </div>
-          <DailyChart rows={ga4Rows} />
+          <div className="flex justify-end">
+            <div className="inline-flex rounded-lg border border-border bg-card overflow-hidden text-xs font-sans">
+              {(["daily", "monthly"] as GA4Period[]).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setGa4Period(p)}
+                  className={`px-3 py-1.5 font-semibold transition-colors ${
+                    ga4Period === p ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {p === "daily" ? "30 días" : "12 meses"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <GA4Chart rows={ga4Rows} period={ga4Period} />
         </>
       )}
       {!ga4Loading && ga4?.error && (

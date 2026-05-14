@@ -56,6 +56,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ configured: false });
   }
 
+  const monthly = req.query?.period === "monthly";
+
   try {
     const accessToken = await getAccessToken(clientEmail, privateKey);
 
@@ -68,14 +70,14 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          dimensions: [{ name: "date" }],
+          dimensions: [{ name: monthly ? "yearMonth" : "date" }],
           metrics: [
             { name: "sessions" },
             { name: "activeUsers" },
             { name: "screenPageViews" },
           ],
-          dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
-          orderBys: [{ dimension: { dimensionName: "date" }, desc: false }],
+          dateRanges: [{ startDate: monthly ? "365daysAgo" : "30daysAgo", endDate: "today" }],
+          orderBys: [{ dimension: { dimensionName: monthly ? "yearMonth" : "date" }, desc: false }],
         }),
       }
     );
@@ -87,13 +89,13 @@ export default async function handler(req, res) {
     }
 
     const rows = (gaData.rows || []).map((row) => ({
-      date: row.dimensionValues[0].value,           // "20260512"
+      date: row.dimensionValues[0].value,
       sessions: Number(row.metricValues[0].value),
       users: Number(row.metricValues[1].value),
       pageviews: Number(row.metricValues[2].value),
     }));
 
-    return res.status(200).json({ configured: true, rows });
+    return res.status(200).json({ configured: true, rows, period: monthly ? "monthly" : "daily" });
   } catch (err) {
     return res.status(200).json({ configured: true, error: err.message });
   }
