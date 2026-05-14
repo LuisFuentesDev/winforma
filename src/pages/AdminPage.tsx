@@ -615,7 +615,7 @@ const AdminPage = () => {
               <div className="space-y-2">
                 <Label>Contenido</Label>
                 <p className="text-xs text-muted-foreground">
-                  Escribe párrafos y agrega fotos entre ellos usando los botones que aparecen al pasar el mouse sobre cada bloque.
+                  Escribe párrafos y agrega fotos entre ellos usando los botones que aparecen al pasar el mouse sobre cada bloques.
                 </p>
                 <BlockEditor
                   blocks={blocks}
