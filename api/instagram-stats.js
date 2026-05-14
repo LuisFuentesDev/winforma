@@ -5,31 +5,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ configured: false });
   }
 
-  // DEBUG TEMPORAL — eliminar después
-  if (req.query?.debug === "1") {
-    const profileRes = await fetch(
-      `https://graph.instagram.com/me?fields=id,username,followers_count,media_count&access_token=${token}`
-    );
-    const profile = await profileRes.json();
-    const since = Math.floor(Date.now() / 1000) - 28 * 86400;
-    const until = Math.floor(Date.now() / 1000);
-
-    const [r1, r2, r3] = await Promise.all([
-      fetch(`https://graph.instagram.com/${profile.id}/insights?metric=impressions,reach&period=day&since=${since}&until=${until}&access_token=${token}`).then(r => r.json()),
-      fetch(`https://graph.instagram.com/${profile.id}/insights?metric=profile_views,website_clicks&period=day&since=${since}&until=${until}&access_token=${token}`).then(r => r.json()),
-      fetch(`https://graph.instagram.com/me/media?fields=id&limit=1&access_token=${token}`).then(r => r.json()),
-    ]);
-
-    let mediaInsights = null;
-    if (r3.data?.[0]?.id) {
-      const mid = r3.data[0].id;
-      mediaInsights = await fetch(`https://graph.instagram.com/${mid}/insights?metric=impressions,reach,saved,likes,comments&access_token=${token}`).then(r => r.json());
-    }
-
-    return res.status(200).json({ profile, impressionsReach: r1, profileViewsClicks: r2, sampleMedia: r3, sampleMediaInsights: mediaInsights });
-  }
-
-
   try {
     // Perfil básico
     const profileRes = await fetch(
@@ -41,12 +16,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ configured: true, error: profile.error.message });
     }
 
-    const since = Math.floor(Date.now() / 1000) - 28 * 86400;
-    const until = Math.floor(Date.now() / 1000);
-
-    // profile_views y website_clicks — period=day (más compatible que month)
+    // Métricas de cuenta — period=day sin since/until (últimos días disponibles)
     const accountRes = await fetch(
-      `https://graph.instagram.com/${profile.id}/insights?metric=profile_views,website_clicks&period=day&since=${since}&until=${until}&access_token=${token}`
+      `https://graph.instagram.com/${profile.id}/insights?metric=reach,profile_views,website_clicks,accounts_engaged,total_interactions,follows_and_unfollows&period=day&access_token=${token}`
     );
     const accountData = await accountRes.json();
 
@@ -58,22 +30,28 @@ export default async function handler(req, res) {
       }
     }
 
-    // Últimos 20 posts — impressions, reach y saves por post
+    // Últimos 20 posts — reach, saves, likes, comments, shares por post
     const mediaRes = await fetch(
-      `https://graph.instagram.com/me/media?fields=id,timestamp&limit=20&access_token=${token}`
+      `https://graph.instagram.com/me/media?fields=id,media_type&limit=20&access_token=${token}`
     );
     const mediaData = await mediaRes.json();
     const mediaItems = mediaData.data ?? [];
 
-    let totalImpressions = 0;
     let totalReach = 0;
     let totalSaves = 0;
     let totalLikes = 0;
     let totalComments = 0;
+    let totalShares = 0;
+    let totalViews = 0;
 
     for (const media of mediaItems) {
+      // Reels usan "views", el resto usa "reach"
+      const metrics = media.media_type === "VIDEO"
+        ? "views,saved,likes,comments,shares"
+        : "reach,saved,likes,comments,shares";
+
       const insRes = await fetch(
-        `https://graph.instagram.com/${media.id}/insights?metric=impressions,reach,saved,likes,comments&access_token=${token}`
+        `https://graph.instagram.com/${media.id}/insights?metric=${metrics}&access_token=${token}`
       );
       const insData = await insRes.json();
 
@@ -83,11 +61,12 @@ export default async function handler(req, res) {
             ? m.values.reduce((s, v) => s + Number(v.value ?? 0), 0)
             : Number(m.value ?? 0);
 
-          if (m.name === "impressions") totalImpressions += val;
-          else if (m.name === "reach") totalReach += val;
+          if (m.name === "reach") totalReach += val;
+          else if (m.name === "views") totalViews += val;
           else if (m.name === "saved") totalSaves += val;
           else if (m.name === "likes") totalLikes += val;
           else if (m.name === "comments") totalComments += val;
+          else if (m.name === "shares") totalShares += val;
         }
       }
     }
@@ -100,17 +79,17 @@ export default async function handler(req, res) {
         mediaCount: profile.media_count,
       },
       insights: {
-        impressions: totalImpressions,
         reach: totalReach,
+        views: totalViews,
         profileViews: accountTotals.profile_views ?? 0,
         websiteClicks: accountTotals.website_clicks ?? 0,
+        accountsEngaged: accountTotals.accounts_engaged ?? 0,
+        totalInteractions: accountTotals.total_interactions ?? 0,
+        followsUnfollows: accountTotals.follows_and_unfollows ?? 0,
         saves: totalSaves,
         likes: totalLikes,
         comments: totalComments,
-      },
-      _debug: {
-        accountRaw: accountData.error ?? accountTotals,
-        postsAnalyzed: mediaItems.length,
+        shares: totalShares,
       },
     });
   } catch (err) {

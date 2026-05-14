@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 
 export interface InstagramInsights {
-  impressions: number;
   reach: number;
+  views: number;
   profileViews: number;
   websiteClicks: number;
+  accountsEngaged: number;
+  totalInteractions: number;
+  followsUnfollows: number;
   saves: number;
   likes: number;
   comments: number;
+  shares: number;
 }
 
 export interface InstagramProfile {
