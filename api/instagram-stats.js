@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
     // Métricas de cuenta — period=day sin since/until (últimos días disponibles)
     const accountRes = await fetch(
-      `https://graph.instagram.com/${profile.id}/insights?metric=reach,profile_views,website_clicks,accounts_engaged,total_interactions,follows_and_unfollows&period=day&access_token=${token}`
+      `https://graph.instagram.com/${profile.id}/insights?metric=reach,profile_views,website_clicks,accounts_engaged,total_interactions,follows_and_unfollows&period=week&access_token=${token}`
     );
     const accountData = await accountRes.json();
 
