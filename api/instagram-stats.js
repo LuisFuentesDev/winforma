@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+export default async function handler(_req, res) {
   const token = process.env.INSTAGRAM_ACCESS_TOKEN;
 
   if (!token) {
@@ -16,24 +16,20 @@ export default async function handler(req, res) {
       return res.status(200).json({ configured: true, error: profile.error.message });
     }
 
-    // Métricas de cuenta — period=day sin since/until (últimos días disponibles)
+    // Alcance semanal de la cuenta
     const accountRes = await fetch(
-      `https://graph.instagram.com/${profile.id}/insights?metric=reach,profile_views,website_clicks,accounts_engaged,total_interactions,follows_and_unfollows&period=week&access_token=${token}`
+      `https://graph.instagram.com/${profile.id}/insights?metric=reach&period=week&access_token=${token}`
     );
     const accountData = await accountRes.json();
 
-    const accountTotals = {};
-    if (!accountData.error && accountData.data) {
-      for (const metric of accountData.data) {
-        const values = metric.values ?? [];
-        accountTotals[metric.name] = values.reduce((s, v) => s + Number(v.value ?? 0), 0);
-      }
+    let weeklyReach = 0;
+    if (!accountData.error && accountData.data?.[0]?.values) {
+      const values = accountData.data[0].values;
+      // Tomar el valor más reciente
+      weeklyReach = Number(values[values.length - 1]?.value ?? 0);
     }
 
-    // DEBUG — eliminar después
-    return res.status(200).json({ _accountDebug: accountData, _accountTotals: accountTotals });
-
-    // Últimos 20 posts — reach, saves, likes, comments, shares por post
+    // Últimos 20 posts — reach/views, saves, likes, comments, shares
     const mediaRes = await fetch(
       `https://graph.instagram.com/me/media?fields=id,media_type&limit=20&access_token=${token}`
     );
@@ -41,14 +37,13 @@ export default async function handler(req, res) {
     const mediaItems = mediaData.data ?? [];
 
     let totalReach = 0;
+    let totalViews = 0;
     let totalSaves = 0;
     let totalLikes = 0;
     let totalComments = 0;
     let totalShares = 0;
-    let totalViews = 0;
 
     for (const media of mediaItems) {
-      // Reels usan "views", el resto usa "reach"
       const metrics = media.media_type === "VIDEO"
         ? "views,saved,likes,comments,shares"
         : "reach,saved,likes,comments,shares";
@@ -82,13 +77,9 @@ export default async function handler(req, res) {
         mediaCount: profile.media_count,
       },
       insights: {
+        weeklyReach,
         reach: totalReach,
         views: totalViews,
-        profileViews: accountTotals.profile_views ?? 0,
-        websiteClicks: accountTotals.website_clicks ?? 0,
-        accountsEngaged: accountTotals.accounts_engaged ?? 0,
-        totalInteractions: accountTotals.total_interactions ?? 0,
-        followsUnfollows: accountTotals.follows_and_unfollows ?? 0,
         saves: totalSaves,
         likes: totalLikes,
         comments: totalComments,

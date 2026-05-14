@@ -184,28 +184,21 @@ export function generateReport(
     y = kpiRow(doc, "Publicaciones totales", fmt(ig.profile.mediaCount), y, pageW);
 
     if (ig.insights) {
+      y = kpiRow(doc, "Alcance semanal", fmt(ig.insights.weeklyReach ?? 0), y, pageW);
+
       y += 4;
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(60, 60, 60);
-      doc.text("Métricas — últimos 20 posts", 18, y);
+      doc.text("Últimos 20 posts", 18, y);
       y += 6;
 
-      y = kpiRow(doc, "Impresiones", fmt(ig.insights.impressions), y, pageW);
       y = kpiRow(doc, "Alcance", fmt(ig.insights.reach), y, pageW);
+      y = kpiRow(doc, "Reproducciones (Reels)", fmt(ig.insights.views ?? 0), y, pageW);
       y = kpiRow(doc, "Me gusta", fmt(ig.insights.likes ?? 0), y, pageW);
       y = kpiRow(doc, "Comentarios", fmt(ig.insights.comments ?? 0), y, pageW);
       y = kpiRow(doc, "Guardados", fmt(ig.insights.saves), y, pageW);
-
-      y += 4;
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(60, 60, 60);
-      doc.text("Métricas — últimos 28 días", 18, y);
-      y += 6;
-
-      y = kpiRow(doc, "Visitas al perfil", fmt(ig.insights.profileViews), y, pageW);
-      y = kpiRow(doc, "Clics al sitio web", fmt(ig.insights.websiteClicks), y, pageW);
+      y = kpiRow(doc, "Compartidos", fmt(ig.insights.shares ?? 0), y, pageW);
     }
   } else {
     doc.setFontSize(9);

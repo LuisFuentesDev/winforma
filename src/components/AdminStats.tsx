@@ -235,12 +235,9 @@ export default function AdminStats({ articles }: AdminStatsProps) {
               {/* KPIs principales */}
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <StatCard icon={<Users size={18} />} label="Seguidores" value={ig.profile.followers} />
-                <StatCard icon={<TrendingUp size={18} />} label="Alcance" value={ig.insights?.reach ?? 0} sub="Suma últimos 20 posts" />
+                <StatCard icon={<TrendingUp size={18} />} label="Alcance semanal" value={ig.insights?.weeklyReach ?? 0} sub="Personas únicas esta semana" />
+                <StatCard icon={<TrendingUp size={18} />} label="Alcance posts" value={ig.insights?.reach ?? 0} sub="Suma últimos 20 posts" />
                 <StatCard icon={<Eye size={18} />} label="Reproducciones" value={ig.insights?.views ?? 0} sub="Reels — últimos 20 posts" />
-                <StatCard icon={<MonitorSmartphone size={18} />} label="Visitas al perfil" value={ig.insights?.profileViews ?? 0} sub="Últimos días" />
-                <StatCard icon={<BarChart2 size={18} />} label="Clics al sitio web" value={ig.insights?.websiteClicks ?? 0} sub="Últimos días" />
-                <StatCard icon={<Users size={18} />} label="Cuentas con interacción" value={ig.insights?.accountsEngaged ?? 0} sub="Últimos días" />
-                <StatCard icon={<TrendingUp size={18} />} label="Interacciones totales" value={ig.insights?.totalInteractions ?? 0} sub="Últimos días" />
                 <StatCard icon={<Heart size={18} />} label="Guardados" value={ig.insights?.saves ?? 0} sub="Suma últimos 20 posts" />
                 <StatCard icon={<ThumbsUp size={18} />} label="Me gusta" value={ig.insights?.likes ?? 0} sub="Suma últimos 20 posts" />
                 <StatCard icon={<MessageCircle size={18} />} label="Comentarios" value={ig.insights?.comments ?? 0} sub="Suma últimos 20 posts" />
