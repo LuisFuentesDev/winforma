@@ -5,6 +5,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ configured: false });
   }
 
+  console.log("INSTAGRAM_ACCESS_TOKEN:", token);
+
   try {
     // Perfil básico
     const profileRes = await fetch(
