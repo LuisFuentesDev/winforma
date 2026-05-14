@@ -1,29 +1,23 @@
 import { useEffect, useState } from "react";
 
-export interface InstagramMedia {
-  id: string;
-  caption?: string;
-  media_type?: string;
-  media_url?: string;
-  thumbnail_url?: string;
-  timestamp?: string;
-  like_count?: number;
-  comments_count?: number;
-  permalink?: string;
+export interface InstagramInsights {
+  impressions: number;
+  reach: number;
+  profileViews: number;
+  websiteClicks: number;
+  saves: number;
 }
 
 export interface InstagramProfile {
   username: string;
   followers: number;
   mediaCount: number;
-  picture?: string;
 }
 
 export interface InstagramStats {
   configured: boolean;
   profile?: InstagramProfile;
-  media?: InstagramMedia[];
-  insights?: unknown;
+  insights?: InstagramInsights;
   error?: string;
 }
 

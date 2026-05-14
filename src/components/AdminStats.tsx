@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, MessageCircle, Camera } from "lucide-react";
+import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, Camera } from "lucide-react";
 import type { AdminArticleRecord } from "@/lib/admin-articles";
 import { useGA4Stats } from "@/hooks/useGA4Stats";
 import { useInstagramStats } from "@/hooks/useInstagramStats";
@@ -155,8 +155,6 @@ export default function AdminStats({ articles }: AdminStatsProps) {
   const ga4Sessions = ga4Rows.reduce((s, r) => s + r.sessions, 0);
   const ga4Users = ga4Rows.reduce((s, r) => s + r.users, 0);
 
-  const totalLikes = ig?.media?.reduce((s, m) => s + (m.like_count ?? 0), 0) ?? 0;
-  const totalComments = ig?.media?.reduce((s, m) => s + (m.comments_count ?? 0), 0) ?? 0;
 
   return (
     <div className="space-y-6">
@@ -203,52 +201,24 @@ export default function AdminStats({ articles }: AdminStatsProps) {
             <>
               {/* Perfil */}
               <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
-                {ig.profile.picture ? (
-                  <img src={ig.profile.picture} alt={ig.profile.username} className="w-14 h-14 rounded-full object-cover" />
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-                    <Camera size={24} className="text-muted-foreground" />
-                  </div>
-                )}
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
+                  <Camera size={22} className="text-muted-foreground" />
+                </div>
                 <div>
-                  <p className="font-black text-lg text-foreground">@{ig.profile.username}</p>
-                  <p className="text-xs text-muted-foreground font-sans">Cuenta de Instagram Business</p>
+                  <p className="font-black text-lg text-foreground leading-tight">@{ig.profile.username}</p>
+                  <p className="text-xs text-muted-foreground font-sans">{ig.profile.mediaCount.toLocaleString("es-CL")} publicaciones · últimos 30 días</p>
                 </div>
               </div>
 
-              {/* KPIs */}
-              <div className="grid gap-3 sm:grid-cols-3">
+              {/* KPIs principales */}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <StatCard icon={<Users size={18} />} label="Seguidores" value={ig.profile.followers} />
-                <StatCard icon={<FileText size={18} />} label="Publicaciones" value={ig.profile.mediaCount} />
-                <StatCard icon={<Heart size={18} />} label="Likes (últimos 12 posts)" value={totalLikes} sub={`${totalComments} comentarios`} />
+                <StatCard icon={<Eye size={18} />} label="Impresiones" value={ig.insights?.impressions ?? 0} sub="Veces que se mostró el contenido" />
+                <StatCard icon={<TrendingUp size={18} />} label="Alcance" value={ig.insights?.reach ?? 0} sub="Personas únicas que lo vieron" />
+                <StatCard icon={<MonitorSmartphone size={18} />} label="Visitas al perfil" value={ig.insights?.profileViews ?? 0} />
+                <StatCard icon={<BarChart2 size={18} />} label="Clics al sitio web" value={ig.insights?.websiteClicks ?? 0} sub="Desde el perfil de Instagram" />
+                <StatCard icon={<Heart size={18} />} label="Guardados" value={ig.insights?.saves ?? 0} sub="Últimos 20 posts" />
               </div>
-
-              {/* Grid de últimos posts */}
-              {ig.media && ig.media.length > 0 && (
-                <div className="rounded-xl border border-border bg-card p-5">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-foreground font-sans mb-4">
-                    Últimas publicaciones
-                  </h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {ig.media.map((post) => {
-                      const thumb = post.thumbnail_url ?? post.media_url ?? "";
-                      return (
-                        <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer" className="group relative aspect-square overflow-hidden rounded-lg bg-muted">
-                          {thumb && <img src={thumb} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-105" />}
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
-                            <span className="flex items-center gap-1 text-white text-xs font-bold">
-                              <Heart size={12} /> {post.like_count ?? 0}
-                            </span>
-                            <span className="flex items-center gap-1 text-white text-xs font-bold">
-                              <MessageCircle size={12} /> {post.comments_count ?? 0}
-                            </span>
-                          </div>
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </>
           )}
         </div>
