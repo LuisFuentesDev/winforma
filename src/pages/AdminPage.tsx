@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Moon, Plus, RefreshCw, Sun, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -65,6 +65,7 @@ const AdminPage = () => {
   const [articles, setArticles] = useState<AdminArticleRecord[]>([]);
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
+  const isNewArticleMode = useRef(false);
   const [form, setForm] = useState<AdminArticleFormValues>(createEmptyArticleForm());
   const [blocks, setBlocks] = useState<Block[]>([{ type: "text", content: "" }]);
   const [isSaving, setIsSaving] = useState(false);
@@ -98,9 +99,11 @@ const AdminPage = () => {
         const adData = await fetchAdminAds();
         setAds(adData);
 
-        if (!selectedArticleId && data.length > 0) {
+        if (!selectedArticleId && !isNewArticleMode.current && data.length > 0) {
+          const mapped = mapArticleToForm(data[0]);
           setSelectedArticleId(data[0].id);
-          setForm(mapArticleToForm(data[0]));
+          setForm(mapped);
+          setBlocks(htmlToBlocks(mapped.content));
         }
         const initialAd = adData.find((item) => item.slot === selectedAdSlot);
         setAdForm(initialAd ? mapAdToForm(initialAd) : createEmptyAdForm(selectedAdSlot));
@@ -115,12 +118,6 @@ const AdminPage = () => {
     void loadArticles();
   }, [session]);
 
-  useEffect(() => {
-    if (!selectedArticle) return;
-    const mapped = mapArticleToForm(selectedArticle);
-    setForm(mapped);
-    setBlocks(htmlToBlocks(mapped.content));
-  }, [selectedArticle]);
 
   useEffect(() => {
     if (!selectedAd) {
@@ -176,12 +173,6 @@ const AdminPage = () => {
       const adData = await fetchAdminAds();
       setAds(adData);
 
-      if (selectedArticleId) {
-        const refreshed = data.find((article) => article.id === selectedArticleId);
-        if (refreshed) {
-          setForm(mapArticleToForm(refreshed));
-        }
-      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo refrescar.");
     } finally {
@@ -197,6 +188,7 @@ const AdminPage = () => {
   };
 
   const handleNewArticle = () => {
+    isNewArticleMode.current = true;
     setSelectedArticleId(null);
     setForm(createEmptyArticleForm());
     setBlocks([{ type: "text", content: "" }]);
@@ -431,8 +423,11 @@ const AdminPage = () => {
                   key={article.id}
                   type="button"
                   onClick={() => {
+                    isNewArticleMode.current = false;
+                    const mapped = mapArticleToForm(article);
                     setSelectedArticleId(article.id);
-                    setForm(mapArticleToForm(article));
+                    setForm(mapped);
+                    setBlocks(htmlToBlocks(mapped.content));
                   }}
                   className={`w-full rounded-xl border px-3 py-3 text-left transition-colors ${
                     selectedArticleId === article.id
