@@ -131,17 +131,32 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Columna 3: legal */}
+          {/* Columna 3: el medio + legal */}
           <div>
             <p className="text-[10px] font-black font-sans uppercase tracking-[0.2em] opacity-40 mb-4">
-              Legal
+              El medio
             </p>
-            <ul className="space-y-2">
+            <ul className="space-y-2 mb-6">
+              <li>
+                <Link to="/acerca-de" className="text-sm font-sans opacity-60 hover:opacity-100 transition-opacity">
+                  Acerca de WINFORMA
+                </Link>
+              </li>
+              <li>
+                <Link to="/contacto" className="text-sm font-sans opacity-60 hover:opacity-100 transition-opacity">
+                  Contacto
+                </Link>
+              </li>
               <li>
                 <Link to="/tarifario" className="text-sm font-sans opacity-60 hover:opacity-100 transition-opacity">
                   Tarifario publicitario
                 </Link>
               </li>
+            </ul>
+            <p className="text-[10px] font-black font-sans uppercase tracking-[0.2em] opacity-40 mb-4">
+              Legal
+            </p>
+            <ul className="space-y-2">
               <li>
                 <Link to="/politica-de-privacidad" className="text-sm font-sans opacity-60 hover:opacity-100 transition-opacity">
                   Política de privacidad

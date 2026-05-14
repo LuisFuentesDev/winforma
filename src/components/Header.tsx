@@ -6,7 +6,11 @@ import { useArticles } from "@/hooks/useArticles";
 import { useThemePreference } from "@/hooks/useThemePreference";
 
 const categories = ["Regional", "Nacional", "Internacional", "Deportes", "Reportajes", "Editorial"];
-const extraLinks = [{ label: "Tarifario", href: "/tarifario" }];
+const extraLinks = [
+  { label: "Acerca de", href: "/acerca-de" },
+  { label: "Contacto", href: "/contacto" },
+  { label: "Tarifario", href: "/tarifario" },
+];
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
