@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, Camera, MessageCircle, ThumbsUp } from "lucide-react";
+import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, Camera, MessageCircle, ThumbsUp, Download } from "lucide-react";
 import type { AdminArticleRecord } from "@/lib/admin-articles";
 import { useGA4Stats } from "@/hooks/useGA4Stats";
 import { useInstagramStats } from "@/hooks/useInstagramStats";
+import { generateReport } from "@/lib/generateReport";
 
 type StatsTab = "web" | "instagram";
 type GA4Period = "daily" | "monthly";
@@ -169,23 +170,34 @@ export default function AdminStats({ articles }: AdminStatsProps) {
   return (
     <div className="space-y-6">
 
-      {/* Sub-pestañas */}
-      <div className="flex rounded-xl border border-border bg-card overflow-hidden">
-        {(["web", "instagram"] as StatsTab[]).map((t) => {
-          const labels: Record<StatsTab, string> = { web: "Sitio web", instagram: "Instagram" };
-          return (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setStatsTab(t)}
-              className={`flex-1 py-2.5 text-sm font-bold font-sans transition-colors ${
-                statsTab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {labels[t]}
-            </button>
-          );
-        })}
+      {/* Barra superior — tabs + botón PDF */}
+      <div className="flex items-center gap-3">
+        <div className="flex flex-1 rounded-xl border border-border bg-card overflow-hidden">
+          {(["web", "instagram"] as StatsTab[]).map((t) => {
+            const labels: Record<StatsTab, string> = { web: "Sitio web", instagram: "Instagram" };
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setStatsTab(t)}
+                className={`flex-1 py-2.5 text-sm font-bold font-sans transition-colors ${
+                  statsTab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {labels[t]}
+              </button>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          onClick={() => generateReport(ga4, ig, articles)}
+          className="shrink-0 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-bold font-sans text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          title="Descargar informe PDF"
+        >
+          <Download size={15} />
+          <span className="hidden sm:inline">Informe PDF</span>
+        </button>
       </div>
 
       {/* ── INSTAGRAM ── */}
