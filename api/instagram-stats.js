@@ -5,7 +5,30 @@ export default async function handler(req, res) {
     return res.status(200).json({ configured: false });
   }
 
-  return res.status(200).json({ configured: true, _token: token });
+  // DEBUG TEMPORAL — eliminar después
+  if (req.query?.debug === "1") {
+    const profileRes = await fetch(
+      `https://graph.instagram.com/me?fields=id,username,followers_count,media_count&access_token=${token}`
+    );
+    const profile = await profileRes.json();
+    const since = Math.floor(Date.now() / 1000) - 28 * 86400;
+    const until = Math.floor(Date.now() / 1000);
+
+    const [r1, r2, r3] = await Promise.all([
+      fetch(`https://graph.instagram.com/${profile.id}/insights?metric=impressions,reach&period=day&since=${since}&until=${until}&access_token=${token}`).then(r => r.json()),
+      fetch(`https://graph.instagram.com/${profile.id}/insights?metric=profile_views,website_clicks&period=day&since=${since}&until=${until}&access_token=${token}`).then(r => r.json()),
+      fetch(`https://graph.instagram.com/me/media?fields=id&limit=1&access_token=${token}`).then(r => r.json()),
+    ]);
+
+    let mediaInsights = null;
+    if (r3.data?.[0]?.id) {
+      const mid = r3.data[0].id;
+      mediaInsights = await fetch(`https://graph.instagram.com/${mid}/insights?metric=impressions,reach,saved,likes,comments&access_token=${token}`).then(r => r.json());
+    }
+
+    return res.status(200).json({ profile, impressionsReach: r1, profileViewsClicks: r2, sampleMedia: r3, sampleMediaInsights: mediaInsights });
+  }
+
 
   try {
     // Perfil básico
