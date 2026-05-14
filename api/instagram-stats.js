@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ configured: false });
   }
 
-  console.log("INSTAGRAM_ACCESS_TOKEN:", token);
+  return res.status(200).json({ configured: true, _token: token });
 
   try {
     // Perfil básico
