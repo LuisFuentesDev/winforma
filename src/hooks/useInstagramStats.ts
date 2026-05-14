@@ -6,6 +6,8 @@ export interface InstagramInsights {
   profileViews: number;
   websiteClicks: number;
   saves: number;
+  likes: number;
+  comments: number;
 }
 
 export interface InstagramProfile {

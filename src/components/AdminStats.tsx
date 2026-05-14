@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, Camera } from "lucide-react";
+import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, Camera, MessageCircle, ThumbsUp } from "lucide-react";
 import type { AdminArticleRecord } from "@/lib/admin-articles";
 import { useGA4Stats } from "@/hooks/useGA4Stats";
 import { useInstagramStats } from "@/hooks/useInstagramStats";
@@ -223,11 +223,13 @@ export default function AdminStats({ articles }: AdminStatsProps) {
               {/* KPIs principales */}
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <StatCard icon={<Users size={18} />} label="Seguidores" value={ig.profile.followers} />
-                <StatCard icon={<Eye size={18} />} label="Impresiones" value={ig.insights?.impressions ?? 0} sub="Veces que se mostró el contenido" />
-                <StatCard icon={<TrendingUp size={18} />} label="Alcance" value={ig.insights?.reach ?? 0} sub="Personas únicas que lo vieron" />
-                <StatCard icon={<MonitorSmartphone size={18} />} label="Visitas al perfil" value={ig.insights?.profileViews ?? 0} />
-                <StatCard icon={<BarChart2 size={18} />} label="Clics al sitio web" value={ig.insights?.websiteClicks ?? 0} sub="Desde el perfil de Instagram" />
-                <StatCard icon={<Heart size={18} />} label="Guardados" value={ig.insights?.saves ?? 0} sub="Últimos 20 posts" />
+                <StatCard icon={<Eye size={18} />} label="Impresiones" value={ig.insights?.impressions ?? 0} sub="Suma últimos 20 posts" />
+                <StatCard icon={<TrendingUp size={18} />} label="Alcance" value={ig.insights?.reach ?? 0} sub="Suma últimos 20 posts" />
+                <StatCard icon={<MonitorSmartphone size={18} />} label="Visitas al perfil" value={ig.insights?.profileViews ?? 0} sub="Últimos 28 días" />
+                <StatCard icon={<BarChart2 size={18} />} label="Clics al sitio web" value={ig.insights?.websiteClicks ?? 0} sub="Últimos 28 días" />
+                <StatCard icon={<Heart size={18} />} label="Guardados" value={ig.insights?.saves ?? 0} sub="Suma últimos 20 posts" />
+                <StatCard icon={<ThumbsUp size={18} />} label="Me gusta" value={ig.insights?.likes ?? 0} sub="Suma últimos 20 posts" />
+                <StatCard icon={<MessageCircle size={18} />} label="Comentarios" value={ig.insights?.comments ?? 0} sub="Suma últimos 20 posts" />
               </div>
             </>
           )}

@@ -16,61 +16,57 @@ export default async function handler(req, res) {
       return res.status(200).json({ configured: true, error: profile.error.message });
     }
 
-    const since = Math.floor(Date.now() / 1000) - 30 * 86400;
+    const since = Math.floor(Date.now() / 1000) - 28 * 86400;
     const until = Math.floor(Date.now() / 1000);
 
-    // impressions y reach — period=day, se suman los valores diarios
-    const dailyRes = await fetch(
-      `https://graph.instagram.com/${profile.id}/insights?metric=impressions,reach&period=day&since=${since}&until=${until}&access_token=${token}`
+    // profile_views y website_clicks — period=day (más compatible que month)
+    const accountRes = await fetch(
+      `https://graph.instagram.com/${profile.id}/insights?metric=profile_views,website_clicks&period=day&since=${since}&until=${until}&access_token=${token}`
     );
-    const dailyData = await dailyRes.json();
+    const accountData = await accountRes.json();
 
-    const dailyTotals = {};
-    if (!dailyData.error && dailyData.data) {
-      for (const metric of dailyData.data) {
+    const accountTotals = {};
+    if (!accountData.error && accountData.data) {
+      for (const metric of accountData.data) {
         const values = metric.values ?? [];
-        dailyTotals[metric.name] = values.reduce((s, v) => s + Number(v.value ?? 0), 0);
+        accountTotals[metric.name] = values.reduce((s, v) => s + Number(v.value ?? 0), 0);
       }
     }
 
-    // profile_views y website_clicks — period=month
-    const monthlyRes = await fetch(
-      `https://graph.instagram.com/${profile.id}/insights?metric=profile_views,website_clicks&period=month&since=${since}&until=${until}&access_token=${token}`
-    );
-    const monthlyData = await monthlyRes.json();
-
-    const monthlyTotals = {};
-    if (!monthlyData.error && monthlyData.data) {
-      for (const metric of monthlyData.data) {
-        const values = metric.values ?? [];
-        monthlyTotals[metric.name] = values.reduce((s, v) => s + Number(v.value ?? 0), 0);
-      }
-    }
-
-    // Saves — suma de los últimos 20 posts
+    // Últimos 20 posts — impressions, reach y saves por post
     const mediaRes = await fetch(
-      `https://graph.instagram.com/me/media?fields=id&limit=20&access_token=${token}`
+      `https://graph.instagram.com/me/media?fields=id,timestamp&limit=20&access_token=${token}`
     );
     const mediaData = await mediaRes.json();
-    const mediaIds = (mediaData.data ?? []).map((m) => m.id);
+    const mediaItems = mediaData.data ?? [];
 
+    let totalImpressions = 0;
+    let totalReach = 0;
     let totalSaves = 0;
-    for (const mediaId of mediaIds) {
-      const saveRes = await fetch(
-        `https://graph.instagram.com/${mediaId}/insights?metric=saved&access_token=${token}`
+    let totalLikes = 0;
+    let totalComments = 0;
+
+    for (const media of mediaItems) {
+      const insRes = await fetch(
+        `https://graph.instagram.com/${media.id}/insights?metric=impressions,reach,saved,likes,comments&access_token=${token}`
       );
-      const saveData = await saveRes.json();
-      if (!saveData.error && saveData.data?.[0]) {
-        const metric = saveData.data[0];
-        if (Array.isArray(metric.values)) {
-          totalSaves += metric.values.reduce((s, v) => s + Number(v.value ?? 0), 0);
-        } else if (metric.value !== undefined) {
-          totalSaves += Number(metric.value);
+      const insData = await insRes.json();
+
+      if (!insData.error && insData.data) {
+        for (const m of insData.data) {
+          const val = Array.isArray(m.values)
+            ? m.values.reduce((s, v) => s + Number(v.value ?? 0), 0)
+            : Number(m.value ?? 0);
+
+          if (m.name === "impressions") totalImpressions += val;
+          else if (m.name === "reach") totalReach += val;
+          else if (m.name === "saved") totalSaves += val;
+          else if (m.name === "likes") totalLikes += val;
+          else if (m.name === "comments") totalComments += val;
         }
       }
     }
 
-    // Debug — incluir raw para diagnóstico
     return res.status(200).json({
       configured: true,
       profile: {
@@ -79,15 +75,17 @@ export default async function handler(req, res) {
         mediaCount: profile.media_count,
       },
       insights: {
-        impressions: dailyTotals.impressions ?? 0,
-        reach: dailyTotals.reach ?? 0,
-        profileViews: monthlyTotals.profile_views ?? 0,
-        websiteClicks: monthlyTotals.website_clicks ?? 0,
+        impressions: totalImpressions,
+        reach: totalReach,
+        profileViews: accountTotals.profile_views ?? 0,
+        websiteClicks: accountTotals.website_clicks ?? 0,
         saves: totalSaves,
+        likes: totalLikes,
+        comments: totalComments,
       },
       _debug: {
-        dailyRaw: dailyData.error ?? dailyTotals,
-        monthlyRaw: monthlyData.error ?? monthlyTotals,
+        accountRaw: accountData.error ?? accountTotals,
+        postsAnalyzed: mediaItems.length,
       },
     });
   } catch (err) {
