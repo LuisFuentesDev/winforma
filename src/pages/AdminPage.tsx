@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+type AdminTab = "list" | "editor" | "ads" | "stats";
 import { Link } from "react-router-dom";
 import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Moon, Plus, RefreshCw, Sun, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -11,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdminSession } from "@/hooks/useAdminSession";
 import { useThemePreference } from "@/hooks/useThemePreference";
 import BlockEditor, { type Block, blocksToHtml, htmlToBlocks } from "@/components/BlockEditor";
+import AdPreview from "@/components/AdPreview";
+import AdminStats from "@/components/AdminStats";
 import {
   AD_SLOTS,
   createEmptyAdForm,
@@ -66,6 +69,7 @@ const AdminPage = () => {
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const isNewArticleMode = useRef(false);
+  const [tab, setTab] = useState<AdminTab>("list");
   const [form, setForm] = useState<AdminArticleFormValues>(createEmptyArticleForm());
   const [blocks, setBlocks] = useState<Block[]>([{ type: "text", content: "" }]);
   const [isSaving, setIsSaving] = useState(false);
@@ -78,10 +82,6 @@ const AdminPage = () => {
   const [isUploadingAdImage, setIsUploadingAdImage] = useState(false);
   const { dark, setDark } = useThemePreference();
 
-  const selectedArticle = useMemo(
-    () => articles.find((article) => article.id === selectedArticleId) ?? null,
-    [articles, selectedArticleId],
-  );
   const selectedAd = useMemo(
     () => ads.find((ad) => ad.slot === selectedAdSlot) ?? null,
     [ads, selectedAdSlot],
@@ -192,6 +192,7 @@ const AdminPage = () => {
     setSelectedArticleId(null);
     setForm(createEmptyArticleForm());
     setBlocks([{ type: "text", content: "" }]);
+    setTab("editor");
   };
 
   const handleSlugSuggest = () => {
@@ -410,8 +411,27 @@ const AdminPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_360px]">
-          <aside className="rounded-2xl border border-border bg-card p-4">
+        {/* Tab bar — unificado desktop y mobile */}
+        <div className="flex rounded-xl border border-border bg-card overflow-hidden mb-4">
+          {(["list", "editor", "ads", "stats"] as AdminTab[]).map((t) => {
+            const labels: Record<AdminTab, string> = { list: "Noticias", editor: "Editor", ads: "Publicidad", stats: "Estadísticas" };
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold font-sans transition-colors ${
+                  tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {labels[t]}
+              </button>
+            );
+          })}
+        </div>
+
+        <div>
+          <aside className={tab !== "list" ? "hidden" : ""}>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-foreground">Noticias</h2>
               {isFetchingArticles && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
@@ -428,6 +448,7 @@ const AdminPage = () => {
                     setSelectedArticleId(article.id);
                     setForm(mapped);
                     setBlocks(htmlToBlocks(mapped.content));
+                    setTab("editor");
                   }}
                   className={`w-full rounded-xl border px-3 py-3 text-left transition-colors ${
                     selectedArticleId === article.id
@@ -458,7 +479,7 @@ const AdminPage = () => {
             </div>
           </aside>
 
-          <section className="rounded-2xl border border-border bg-card p-5">
+          <section className={tab !== "editor" ? "hidden" : "rounded-2xl border border-border bg-card p-5"}>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-bold text-foreground">
@@ -698,7 +719,7 @@ const AdminPage = () => {
             </form>
           </section>
 
-          <aside className="rounded-2xl border border-border bg-card p-5">
+          <aside className={tab !== "ads" ? "hidden" : "rounded-2xl border border-border bg-card p-5"}>
             <div className="mb-5">
               <h2 className="text-xl font-bold text-foreground">Publicidad</h2>
               <p className="text-sm text-muted-foreground">
@@ -776,15 +797,10 @@ const AdminPage = () => {
                     className="hidden"
                     onChange={handleAdImageUpload}
                   />
-                  {adForm.imageUrl && (
-                    <img
-                      src={adForm.imageUrl}
-                      alt={adForm.title || "Preview banner"}
-                      className="max-h-48 w-full rounded-lg object-contain"
-                    />
-                  )}
                 </div>
               </div>
+
+              <AdPreview slot={selectedAdSlot} imageUrl={adForm.imageUrl} title={adForm.title} />
 
               <label className="flex items-center gap-3 rounded-xl border border-border px-4 py-3">
                 <input
@@ -801,6 +817,11 @@ const AdminPage = () => {
               </Button>
             </div>
           </aside>
+
+          {/* Estadísticas */}
+          <div className={tab !== "stats" ? "hidden" : ""}>
+            <AdminStats articles={articles} />
+          </div>
         </div>
       </main>
     </div>

@@ -32,6 +32,14 @@
     {
       "source": "/terminos",
       "destination": "/index.html"
+    },
+    {
+      "source": "/acerca-de",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/contacto",
+      "destination": "/index.html"
     }
   ]
 }
