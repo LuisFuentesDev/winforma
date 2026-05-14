@@ -207,18 +207,18 @@ export function generateReport(
     y += 10;
   }
 
-  // ── Pie de página ────────────────────────────────────────────
+  // ── Pie de página — al final del contenido ───────────────────
+  y += 10;
+  doc.setFontSize(7);
+  doc.setTextColor(160, 160, 160);
+  doc.text(`Generado el ${now.toLocaleDateString("es-CL")} · winforma.cl`, 14, y);
+
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFontSize(7);
     doc.setTextColor(160, 160, 160);
-    doc.text(
-      `Generado el ${now.toLocaleDateString("es-CL")} · winforma.cl`,
-      14,
-      doc.internal.pageSize.getHeight() - 8
-    );
-    doc.text(`${i} / ${totalPages}`, pageW - 14, doc.internal.pageSize.getHeight() - 8, { align: "right" });
+    doc.text(`${i} / ${totalPages}`, pageW - 14, doc.internal.pageSize.getHeight() - 6, { align: "right" });
   }
 
   const filename = `winforma-informe-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}.pdf`;
