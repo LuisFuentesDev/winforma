@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import type { GA4Stats } from "@/hooks/useGA4Stats";
+import type { GA4Geo } from "@/hooks/useGA4Geo";
 import type { InstagramStats } from "@/hooks/useInstagramStats";
 import type { AdminArticleRecord } from "@/lib/admin-articles";
 
@@ -67,7 +68,8 @@ function miniBarChart(
 export function generateReport(
   ga4: GA4Stats | null,
   ig: InstagramStats | null,
-  articles: AdminArticleRecord[]
+  articles: AdminArticleRecord[],
+  geo?: GA4Geo | null
 ) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -168,6 +170,65 @@ export function generateReport(
   });
 
   y += 4;
+
+  // ── GEOGRAFÍA ────────────────────────────────────────────────
+  if (geo?.configured && (geo.cities?.length || geo.regions?.length)) {
+    if (y > 200) { doc.addPage(); y = 20; }
+
+    y = sectionHeader(doc, "Audiencia geográfica — últimos 30 días", y, pageW);
+
+    const halfW = (pageW - 28 - 6) / 2;
+
+    // Ciudades
+    if (geo.cities?.length) {
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(60, 60, 60);
+      doc.text("Top ciudades", 18, y);
+      y += 5;
+
+      const maxCity = geo.cities[0].users;
+      geo.cities.slice(0, 8).forEach((c, i) => {
+        const bw = (c.users / maxCity) * halfW * 0.7;
+        doc.setFillColor(200, 220, 255);
+        doc.rect(18, y - 3.5, bw, 4, "F");
+        doc.setFontSize(7.5);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(30, 30, 30);
+        doc.text(`${i + 1}. ${c.name}`, 20, y);
+        doc.setTextColor(100, 100, 100);
+        doc.text(fmt(c.users), 18 + halfW, y, { align: "right" });
+        y += 6;
+      });
+    }
+
+    // Regiones
+    if (geo.regions?.length) {
+      y += 2;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(60, 60, 60);
+      doc.text("Top regiones", 18, y);
+      y += 5;
+
+      const maxReg = geo.regions[0].users;
+      geo.regions.slice(0, 6).forEach((r, i) => {
+        const bw = (r.users / maxReg) * halfW * 0.7;
+        doc.setFillColor(200, 220, 255);
+        doc.rect(18, y - 3.5, bw, 4, "F");
+        doc.setFontSize(7.5);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(30, 30, 30);
+        const label = r.name.replace("Región ", "").replace(" de ", " ").replace(" del ", " ");
+        doc.text(`${i + 1}. ${label}`, 20, y);
+        doc.setTextColor(100, 100, 100);
+        doc.text(fmt(r.users), 18 + halfW, y, { align: "right" });
+        y += 6;
+      });
+    }
+
+    y += 4;
+  }
 
   // ── INSTAGRAM ────────────────────────────────────────────────
   // Nueva página si no queda espacio

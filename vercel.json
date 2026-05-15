@@ -40,6 +40,10 @@
     {
       "source": "/contacto",
       "destination": "/index.html"
+    },
+    {
+      "source": "/preview",
+      "destination": "/index.html"
     }
   ]
 }

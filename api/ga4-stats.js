@@ -57,32 +57,71 @@ export default async function handler(req, res) {
   }
 
   const monthly = req.query?.period === "monthly";
+  const geo = req.query?.type === "geo";
 
   try {
     const accessToken = await getAccessToken(clientEmail, privateKey);
 
-    const gaRes = await fetch(
-      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
-      {
+    const makeReport = (body) =>
+      fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dimensions: [{ name: monthly ? "yearMonth" : "date" }],
-          metrics: [
-            { name: "sessions" },
-            { name: "activeUsers" },
-            { name: "screenPageViews" },
-          ],
-          dateRanges: [{ startDate: monthly ? "365daysAgo" : "30daysAgo", endDate: "today" }],
-          orderBys: [{ dimension: { dimensionName: monthly ? "yearMonth" : "date" }, desc: false }],
-        }),
-      }
-    );
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then((r) => r.json());
 
-    const gaData = await gaRes.json();
+    if (geo) {
+      // Reporte geográfico — top ciudades y regiones, últimos 30 días
+      const [cityData, regionData] = await Promise.all([
+        makeReport({
+          dimensions: [{ name: "city" }],
+          metrics: [{ name: "activeUsers" }, { name: "sessions" }],
+          dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+          orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
+          limit: 15,
+        }),
+        makeReport({
+          dimensions: [{ name: "region" }],
+          metrics: [{ name: "activeUsers" }, { name: "sessions" }],
+          dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+          orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
+          limit: 15,
+        }),
+      ]);
+
+      if (cityData.error) {
+        return res.status(200).json({ configured: true, error: cityData.error.message });
+      }
+
+      const cities = (cityData.rows || [])
+        .filter((r) => r.dimensionValues[0].value !== "(not set)")
+        .map((r) => ({
+          name: r.dimensionValues[0].value,
+          users: Number(r.metricValues[0].value),
+          sessions: Number(r.metricValues[1].value),
+        }));
+
+      const regions = (regionData.rows || [])
+        .filter((r) => r.dimensionValues[0].value !== "(not set)")
+        .map((r) => ({
+          name: r.dimensionValues[0].value,
+          users: Number(r.metricValues[0].value),
+          sessions: Number(r.metricValues[1].value),
+        }));
+
+      return res.status(200).json({ configured: true, cities, regions });
+    }
+
+    // Reporte temporal (diario o mensual)
+    const gaData = await makeReport({
+      dimensions: [{ name: monthly ? "yearMonth" : "date" }],
+      metrics: [
+        { name: "sessions" },
+        { name: "activeUsers" },
+        { name: "screenPageViews" },
+      ],
+      dateRanges: [{ startDate: monthly ? "365daysAgo" : "30daysAgo", endDate: "today" }],
+      orderBys: [{ dimension: { dimensionName: monthly ? "yearMonth" : "date" }, desc: false }],
+    });
 
     if (gaData.error) {
       return res.status(200).json({ configured: true, error: gaData.error.message });

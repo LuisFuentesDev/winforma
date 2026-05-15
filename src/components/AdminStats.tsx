@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Eye, FileText, TrendingUp, BarChart2, Users, MonitorSmartphone, Heart, Camera, MessageCircle, ThumbsUp, Download } from "lucide-react";
 import type { AdminArticleRecord } from "@/lib/admin-articles";
 import { useGA4Stats } from "@/hooks/useGA4Stats";
+import { useGA4Geo } from "@/hooks/useGA4Geo";
 import { useInstagramStats } from "@/hooks/useInstagramStats";
+import { MapPin } from "lucide-react";
 import { generateReport } from "@/lib/generateReport";
 
 type StatsTab = "web" | "instagram";
@@ -117,6 +119,7 @@ export default function AdminStats({ articles }: AdminStatsProps) {
   const [statsTab, setStatsTab] = useState<StatsTab>("web");
   const [ga4Period, setGa4Period] = useState<GA4Period>("daily");
   const { data: ga4, loading: ga4Loading } = useGA4Stats(ga4Period);
+  const { data: geo, loading: geoLoading } = useGA4Geo();
   const { data: ig, loading: igLoading } = useInstagramStats();
 
   useEffect(() => {
@@ -191,7 +194,7 @@ export default function AdminStats({ articles }: AdminStatsProps) {
         </div>
         <button
           type="button"
-          onClick={() => generateReport(ga4, ig, articles)}
+          onClick={() => generateReport(ga4, ig, articles, geo)}
           className="shrink-0 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-bold font-sans text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           title="Descargar informe PDF"
         >
@@ -293,6 +296,74 @@ export default function AdminStats({ articles }: AdminStatsProps) {
           </div>
           <GA4Chart rows={ga4Rows} period={ga4Period} />
         </>
+      )}
+
+      {/* Geografía */}
+      {!geoLoading && geo?.configured && !geo?.error && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Ciudades */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin size={15} className="text-primary shrink-0" />
+              <h3 className="text-sm font-black uppercase tracking-widest text-foreground font-sans">
+                Top ciudades — 30 días
+              </h3>
+            </div>
+            {(geo.cities ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground font-sans">Sin datos.</p>
+            ) : (
+              <div className="space-y-2.5">
+                {(geo.cities ?? []).map((c, i) => (
+                  <div key={c.name} className="flex items-center gap-2">
+                    <span className="w-4 shrink-0 text-right text-[10px] font-bold text-muted-foreground/50 tabular-nums">{i + 1}</span>
+                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${Math.round((c.users / ((geo.cities ?? [])[0]?.users || 1)) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="w-28 shrink-0 text-xs font-sans text-foreground truncate">{c.name}</span>
+                    <span className="w-12 shrink-0 text-right text-xs font-sans text-muted-foreground tabular-nums">{c.users.toLocaleString("es-CL")}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Regiones */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin size={15} className="text-primary shrink-0" />
+              <h3 className="text-sm font-black uppercase tracking-widest text-foreground font-sans">
+                Top regiones — 30 días
+              </h3>
+            </div>
+            {(geo.regions ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground font-sans">Sin datos.</p>
+            ) : (
+              <div className="space-y-2.5">
+                {(geo.regions ?? []).map((r, i) => (
+                  <div key={r.name} className="flex items-center gap-2">
+                    <span className="w-4 shrink-0 text-right text-[10px] font-bold text-muted-foreground/50 tabular-nums">{i + 1}</span>
+                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary/70 transition-all"
+                        style={{ width: `${Math.round((r.users / ((geo.regions ?? [])[0]?.users || 1)) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="w-36 shrink-0 text-xs font-sans text-foreground truncate">{r.name}</span>
+                    <span className="w-12 shrink-0 text-right text-xs font-sans text-muted-foreground tabular-nums">{r.users.toLocaleString("es-CL")}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {geoLoading && (
+        <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground font-sans">
+          Cargando datos geográficos...
+        </div>
       )}
       {!ga4Loading && ga4?.error && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive font-sans">

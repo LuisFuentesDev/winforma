@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 type AdminTab = "list" | "editor" | "ads" | "stats";
 import { Link } from "react-router-dom";
-import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Moon, Plus, RefreshCw, Sun, Trash2, Upload } from "lucide-react";
+import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Moon, Plus, RefreshCw, Sun, Trash2, Upload, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
@@ -490,16 +490,38 @@ const AdminPage = () => {
                 </p>
               </div>
 
-              {form.slug && (
-                <Link
-                  to={`/articulo/${form.slug}`}
-                  className="text-sm font-semibold text-primary hover:underline"
-                  target="_blank"
-                  rel="noreferrer"
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sessionStorage.setItem("winforma_preview", JSON.stringify({
+                      title: form.title,
+                      summary: form.summary,
+                      content: blocksToHtml(blocks),
+                      author: form.author,
+                      category: form.category,
+                      imageUrl: form.imageUrl,
+                      publishedAt: form.publishedAt,
+                      slug: form.slug,
+                    }));
+                    window.open("/preview", "_blank");
+                  }}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5"
                 >
-                  Ver noticia
-                </Link>
-              )}
+                  <ExternalLink size={14} />
+                  Vista previa
+                </button>
+                {form.slug && (
+                  <Link
+                    to={`/articulo/${form.slug}`}
+                    className="text-sm font-semibold text-primary hover:underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Ver noticia
+                  </Link>
+                )}
+              </div>
             </div>
 
             <form
@@ -719,7 +741,7 @@ const AdminPage = () => {
             </form>
           </section>
 
-          <aside className={tab !== "ads" ? "hidden" : "rounded-2xl border border-border bg-card p-5"}>
+          <aside className={tab !== "ads" ? "hidden" : ""}>
             <div className="mb-5">
               <h2 className="text-xl font-bold text-foreground">Publicidad</h2>
               <p className="text-sm text-muted-foreground">
@@ -727,94 +749,101 @@ const AdminPage = () => {
               </p>
             </div>
 
-            <div className="grid gap-2">
-              {AD_SLOTS.map((slotConfig) => (
-                <button
-                  key={slotConfig.slot}
-                  type="button"
-                  onClick={() => setSelectedAdSlot(slotConfig.slot)}
-                  className={`rounded-xl border px-3 py-3 text-left transition-colors ${
-                    selectedAdSlot === slotConfig.slot
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/30 hover:bg-muted/30"
-                  }`}
-                >
-                  <p className="text-sm font-semibold text-foreground">{slotConfig.label}</p>
-                  <p className="text-xs text-muted-foreground">{slotConfig.description}</p>
-                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
-                    {slotConfig.size}
-                  </p>
-                </button>
-              ))}
-            </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Columna izquierda — slots + formulario */}
+              <div className="space-y-4">
+                <div className="grid gap-2">
+                  {AD_SLOTS.map((slotConfig) => (
+                    <button
+                      key={slotConfig.slot}
+                      type="button"
+                      onClick={() => setSelectedAdSlot(slotConfig.slot)}
+                      className={`rounded-xl border px-3 py-3 text-left transition-colors ${
+                        selectedAdSlot === slotConfig.slot
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/30 hover:bg-muted/30"
+                      }`}
+                    >
+                      <p className="text-sm font-semibold text-foreground">{slotConfig.label}</p>
+                      <p className="text-xs text-muted-foreground">{slotConfig.description}</p>
+                      <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
+                        {slotConfig.size}
+                      </p>
+                    </button>
+                  ))}
+                </div>
 
-            <div className="mt-6 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="ad-title">Título interno</Label>
-                <Input
-                  id="ad-title"
-                  value={adForm.title}
-                  onChange={(event) => updateAdForm("title", event.target.value)}
-                  placeholder="Campaña otoño"
-                />
-              </div>
+                <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ad-title">Título interno</Label>
+                    <Input
+                      id="ad-title"
+                      value={adForm.title}
+                      onChange={(event) => updateAdForm("title", event.target.value)}
+                      placeholder="Campaña otoño"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="ad-target-url">Link de destino</Label>
-                <Input
-                  id="ad-target-url"
-                  type="url"
-                  value={adForm.targetUrl}
-                  onChange={(event) => updateAdForm("targetUrl", event.target.value)}
-                  placeholder="https://cliente.cl"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ad-target-url">Link de destino</Label>
+                    <Input
+                      id="ad-target-url"
+                      type="url"
+                      value={adForm.targetUrl}
+                      onChange={(event) => updateAdForm("targetUrl", event.target.value)}
+                      placeholder="https://cliente.cl"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="ad-image-url">URL de imagen</Label>
-                <Input
-                  id="ad-image-url"
-                  type="url"
-                  value={adForm.imageUrl}
-                  onChange={(event) => updateAdForm("imageUrl", event.target.value)}
-                  placeholder="https://..."
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ad-image-url">URL de imagen</Label>
+                    <Input
+                      id="ad-image-url"
+                      type="url"
+                      value={adForm.imageUrl}
+                      onChange={(event) => updateAdForm("imageUrl", event.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
 
-              <div className="rounded-xl border border-dashed border-border p-4">
-                <div className="flex flex-col gap-3">
-                  <Label
-                    htmlFor="ad-image-file"
-                    className="inline-flex min-w-fit whitespace-nowrap cursor-pointer items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-                  >
-                    <Upload size={16} className="mr-2" />
-                    {isUploadingAdImage ? "Subiendo..." : "Subir imagen del banner"}
-                  </Label>
-                  <Input
-                    id="ad-image-file"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAdImageUpload}
-                  />
+                  <div className="rounded-xl border border-dashed border-border p-4">
+                    <Label
+                      htmlFor="ad-image-file"
+                      className="inline-flex min-w-fit whitespace-nowrap cursor-pointer items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                    >
+                      <Upload size={16} className="mr-2" />
+                      {isUploadingAdImage ? "Subiendo..." : "Subir imagen del banner"}
+                    </Label>
+                    <Input
+                      id="ad-image-file"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAdImageUpload}
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-3 rounded-xl border border-border px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={adForm.isActive}
+                      onChange={(event) => updateAdForm("isActive", event.target.checked)}
+                      className="h-4 w-4"
+                    />
+                    <span className="text-sm text-foreground">Banner activo en el sitio</span>
+                  </label>
+
+                  <Button type="button" onClick={() => void handleSaveAd()} disabled={isSavingAd}>
+                    {isSavingAd ? "Guardando..." : "Guardar banner"}
+                  </Button>
                 </div>
               </div>
 
-              <AdPreview slot={selectedAdSlot} imageUrl={adForm.imageUrl} title={adForm.title} />
-
-              <label className="flex items-center gap-3 rounded-xl border border-border px-4 py-3">
-                <input
-                  type="checkbox"
-                  checked={adForm.isActive}
-                  onChange={(event) => updateAdForm("isActive", event.target.checked)}
-                  className="h-4 w-4"
-                />
-                <span className="text-sm text-foreground">Banner activo en el sitio</span>
-              </label>
-
-              <Button type="button" onClick={() => void handleSaveAd()} disabled={isSavingAd}>
-                {isSavingAd ? "Guardando..." : "Guardar banner"}
-              </Button>
+              {/* Columna derecha — previsualización */}
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Previsualización</p>
+                <AdPreview slot={selectedAdSlot} imageUrl={adForm.imageUrl} title={adForm.title} />
+              </div>
             </div>
           </aside>
 

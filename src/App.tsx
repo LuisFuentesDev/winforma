@@ -14,6 +14,7 @@ import Tarifario from "./pages/Tarifario.tsx";
 import AdminPage from "./pages/AdminPage.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import ContactPage from "./pages/ContactPage.tsx";
+import PreviewPage from "./pages/PreviewPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/acerca-de" element={<AboutPage />} />
           <Route path="/contacto" element={<ContactPage />} />
+          <Route path="/preview" element={<PreviewPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
