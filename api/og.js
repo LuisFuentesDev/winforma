@@ -52,11 +52,15 @@ export default async function handler(req, res) {
   <!-- Open Graph -->
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WINFORMA" />
+  <meta property="og:locale" content="es_CL" />
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:image" content="${esc(image)}" />
+  <meta property="og:image:secure_url" content="${esc(image)}" />
+  <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="${esc(article.title)}" />
   <meta property="og:url" content="${esc(url)}" />
   <meta property="article:author" content="${esc(article.author || "WINFORMA")}" />
   <meta property="article:section" content="${esc(article.category || "")}" />
@@ -64,10 +68,11 @@ export default async function handler(req, res) {
 
   <!-- Twitter / X Card -->
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@winforma_cl" />
   <meta name="twitter:title" content="${esc(title)}" />
   <meta name="twitter:description" content="${esc(description)}" />
   <meta name="twitter:image" content="${esc(image)}" />
-  <meta name="twitter:site" content="@winforma_cl" />
+  <meta name="twitter:image:alt" content="${esc(article.title)}" />
 </head>
 <body>
   <a href="${esc(url)}">${esc(title)}</a>
