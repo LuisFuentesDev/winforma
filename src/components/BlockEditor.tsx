@@ -1,8 +1,8 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   Image, Trash2, ArrowUp, ArrowDown, Plus,
   Bold, Italic, Underline, Strikethrough,
-  List, ListOrdered, Quote,
+  List, ListOrdered, Quote, Baseline,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,9 +107,26 @@ interface RichTextEditorProps {
   onChange: (html: string) => void;
 }
 
+const COLOR_PALETTE = [
+  { label: "Por defecto",  value: "inherit" },
+  { label: "Negro",        value: "#000000" },
+  { label: "Gris oscuro",  value: "#374151" },
+  { label: "Gris",         value: "#6B7280" },
+  { label: "Rojo",         value: "#DC2626" },
+  { label: "Naranja",      value: "#EA580C" },
+  { label: "Amarillo",     value: "#CA8A04" },
+  { label: "Verde",        value: "#16A34A" },
+  { label: "Celeste",      value: "#0284C7" },
+  { label: "Azul",         value: "#2563EB" },
+  { label: "Morado",       value: "#7C3AED" },
+  { label: "Rosa",         value: "#DB2777" },
+];
+
 function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const lastContent = useRef(content);
+  const [showColors, setShowColors] = useState(false);
+  const [activeColor, setActiveColor] = useState("inherit");
 
   useEffect(() => {
     if (editorRef.current) {
@@ -143,6 +160,42 @@ function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       lastContent.current = editorRef.current.innerHTML;
       onChange(editorRef.current.innerHTML);
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    const html = e.clipboardData.getData("text/html");
+
+    let clean = "";
+    if (html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      // Eliminar estilos inline de todos los elementos
+      doc.body.querySelectorAll("*").forEach((el) => {
+        el.removeAttribute("style");
+        el.removeAttribute("color");
+        el.removeAttribute("bgcolor");
+        el.removeAttribute("class");
+        el.removeAttribute("id");
+        el.removeAttribute("font");
+      });
+      // Eliminar etiquetas span vacías o de solo formato de color
+      doc.body.querySelectorAll("span").forEach((span) => {
+        if (!span.getAttribute("style") && span.children.length === 0) {
+          span.replaceWith(...Array.from(span.childNodes));
+        }
+      });
+      clean = doc.body.innerHTML;
+    } else {
+      // Sin HTML: convertir saltos de línea en párrafos
+      clean = text
+        .split(/\n{2,}/)
+        .map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`)
+        .join("");
+    }
+
+    document.execCommand("insertHTML", false, clean);
   };
 
   return (
@@ -186,6 +239,69 @@ function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           <ToolbarButton title="Cita destacada" onMouseDown={(e) => exec(e, "formatBlock", "BLOCKQUOTE")}>
             <Quote size={14} />
           </ToolbarButton>
+
+          <div className="mx-1.5 h-4 w-px bg-border" />
+
+          {/* Color de texto */}
+          <div className="relative">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); setShowColors((v) => !v); }}
+                  className="p-1.5 rounded transition-colors hover:bg-muted text-muted-foreground hover:text-foreground flex flex-col items-center gap-0.5"
+                >
+                  <Baseline size={14} />
+                  <div
+                    className="h-1 w-4 rounded-full"
+                    style={{ backgroundColor: activeColor === "inherit" ? "currentColor" : activeColor }}
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs">Color de texto</TooltipContent>
+            </Tooltip>
+
+            {showColors && (
+              <div className="absolute left-0 top-full mt-1 z-50 rounded-xl border border-border bg-card shadow-lg p-2 w-44">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 px-1">Color de texto</p>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {COLOR_PALETTE.map((c) => (
+                    <button
+                      key={c.value}
+                      type="button"
+                      title={c.label}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        editorRef.current?.focus();
+                        if (c.value === "inherit") {
+                          document.execCommand("removeFormat", false, undefined);
+                        } else {
+                          document.execCommand("foreColor", false, c.value);
+                        }
+                        setActiveColor(c.value);
+                        setShowColors(false);
+                        if (editorRef.current) {
+                          lastContent.current = editorRef.current.innerHTML;
+                          onChange(editorRef.current.innerHTML);
+                        }
+                      }}
+                      className={`w-6 h-6 rounded-md border-2 transition-transform hover:scale-110 ${
+                        activeColor === c.value ? "border-primary" : "border-transparent"
+                      }`}
+                      style={{
+                        backgroundColor: c.value === "inherit" ? "transparent" : c.value,
+                        backgroundImage: c.value === "inherit"
+                          ? "repeating-linear-gradient(45deg, #ccc 0, #ccc 2px, transparent 0, transparent 50%)"
+                          : undefined,
+                        backgroundSize: "6px 6px",
+                        border: c.value === "inherit" ? "2px dashed #ccc" : undefined,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </TooltipProvider>
 
@@ -195,6 +311,8 @@ function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         contentEditable
         suppressContentEditableWarning
         onInput={handleInput}
+        onPaste={handlePaste}
+        onFocus={() => setShowColors(false)}
         className="min-h-[140px] px-3 py-3 text-sm font-sans text-foreground outline-none
           [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1
           [&_h3]:text-base [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1
