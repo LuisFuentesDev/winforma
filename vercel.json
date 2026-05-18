@@ -11,7 +11,7 @@
     },
     {
       "source": "/articulo/:slug",
-      "destination": "/index.html"
+      "destination": "/api/og?slug=:slug"
     },
     {
       "source": "/seccion/:category",
