@@ -16,9 +16,20 @@ export default async function handler(req, res) {
   const ua = (req.headers["user-agent"] || "").toLowerCase();
   const isBot = BOT_AGENTS.some((b) => ua.includes(b));
 
-  // Si no es bot, redirigir al artículo normalmente
+  // Si no es bot, servir la SPA directamente (evita bucle de rewrite)
   if (!isBot) {
-    return res.redirect(302, `/articulo/${slug}`);
+    const fs = await import("fs");
+    const path = await import("path");
+    const indexPath = path.join(process.cwd(), "dist", "index.html");
+    try {
+      const html = fs.readFileSync(indexPath, "utf-8");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(200).send(html);
+    } catch {
+      // Si no existe dist/index.html (dev local), redirigir sin pasar por rewrite
+      res.setHeader("Location", `/?__slug=${encodeURIComponent(slug)}`);
+      return res.status(302).end();
+    }
   }
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
