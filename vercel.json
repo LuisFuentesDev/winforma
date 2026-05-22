@@ -11,7 +11,12 @@
     },
     {
       "source": "/articulo/:slug",
+      "has": [{ "type": "header", "key": "user-agent", "value": "(?i).*(facebookexternalhit|twitterbot|whatsapp|linkedinbot|telegrambot|slackbot|discordbot|googlebot|bingbot|applebot|pinterest|iframely|embedly|vkshare|rogerbot).*" }],
       "destination": "/api/og?slug=:slug"
+    },
+    {
+      "source": "/articulo/:slug",
+      "destination": "/index.html"
     },
     {
       "source": "/seccion/:category",
