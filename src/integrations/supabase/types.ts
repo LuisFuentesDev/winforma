@@ -98,6 +98,33 @@ export type Database = {
         }
         Relationships: []
       }
+      sections: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          position: number
+          visible: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          position?: number
+          visible?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          position?: number
+          visible?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           created_at: string

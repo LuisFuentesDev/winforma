@@ -4,8 +4,9 @@ import { Menu, X, Search, Sun, Moon, Eye } from "lucide-react";
 import { useAllPageViews } from "@/hooks/usePageViews";
 import { useArticles } from "@/hooks/useArticles";
 import { useThemePreference } from "@/hooks/useThemePreference";
+import { useSections } from "@/hooks/useSections";
 
-const categories = ["Regional", "Nacional", "Internacional", "Deportes", "Reportajes", "Editorial"];
+const FALLBACK_CATEGORIES = ["Regional", "Nacional", "Internacional", "Deportes", "Reportajes", "Editorial"];
 const extraLinks = [{ label: "Tarifario", href: "/tarifario" }];
 
 const Header = () => {
@@ -17,6 +18,10 @@ const Header = () => {
   const totalViews = useAllPageViews();
   const { data: articles = [] } = useArticles();
   const { dark, setDark } = useThemePreference();
+  const { sections, loading: sectionsLoading } = useSections();
+  const categories = !sectionsLoading && sections.length > 0
+    ? sections.filter((s) => s.visible).map((s) => s.name)
+    : FALLBACK_CATEGORIES;
 
   const currentDate = new Intl.DateTimeFormat("es-CL", {
     weekday: "long",

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-type AdminTab = "list" | "editor" | "ads" | "stats";
+type AdminTab = "list" | "editor" | "ads" | "stats" | "sections";
 import { Link } from "react-router-dom";
 import { Calendar, ChevronDown, Eye, EyeOff, Loader2, LogOut, Moon, Plus, RefreshCw, Sun, Trash2, Upload, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ import { useThemePreference } from "@/hooks/useThemePreference";
 import BlockEditor, { type Block, blocksToHtml, htmlToBlocks } from "@/components/BlockEditor";
 import AdPreview from "@/components/AdPreview";
 import AdminStats from "@/components/AdminStats";
+import AdminSections from "@/components/AdminSections";
+import { fetchSections, type SectionRecord } from "@/lib/admin-sections";
 import {
   AD_SLOTS,
   createEmptyAdForm,
@@ -75,6 +77,7 @@ const AdminPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [sections, setSections] = useState<SectionRecord[]>([]);
   const [ads, setAds] = useState<AdRecord[]>([]);
   const [selectedAdSlot, setSelectedAdSlot] = useState<AdFormValues["slot"]>("leaderboard");
   const [adForm, setAdForm] = useState<AdFormValues>(createEmptyAdForm("leaderboard"));
@@ -98,6 +101,8 @@ const AdminPage = () => {
         setArticles(data);
         const adData = await fetchAdminAds();
         setAds(adData);
+        const sectionData = await fetchSections();
+        setSections(sectionData);
 
         if (!selectedArticleId && !isNewArticleMode.current && data.length > 0) {
           const mapped = mapArticleToForm(data[0]);
@@ -413,8 +418,8 @@ const AdminPage = () => {
 
         {/* Tab bar — unificado desktop y mobile */}
         <div className="flex rounded-xl border border-border bg-card overflow-hidden mb-4">
-          {(["list", "editor", "ads", "stats"] as AdminTab[]).map((t) => {
-            const labels: Record<AdminTab, string> = { list: "Noticias", editor: "Editor", ads: "Publicidad", stats: "Estadísticas" };
+          {(["list", "editor", "ads", "sections", "stats"] as AdminTab[]).map((t) => {
+            const labels: Record<AdminTab, string> = { list: "Noticias", editor: "Editor", ads: "Publicidad", sections: "Secciones", stats: "Estadísticas" };
             return (
               <button
                 key={t}
@@ -581,7 +586,7 @@ const AdminPage = () => {
                     value={form.category}
                     onChange={(event) => updateForm("category", event.target.value)}
                   >
-                    {ADMIN_CATEGORIES.map((category) => (
+                    {(sections.length > 0 ? sections.map((s) => s.name) : ADMIN_CATEGORIES).map((category) => (
                       <option key={category} value={category}>
                         {category}
                       </option>
@@ -846,6 +851,11 @@ const AdminPage = () => {
               </div>
             </div>
           </aside>
+
+          {/* Secciones */}
+          <div className={tab !== "sections" ? "hidden" : ""}>
+            <AdminSections sections={sections} onUpdate={setSections} />
+          </div>
 
           {/* Estadísticas */}
           <div className={tab !== "stats" ? "hidden" : ""}>
