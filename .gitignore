@@ -34,3 +34,8 @@ __pycache__/
 
 # local supabase state
 supabase/.temp/
+
+# Claude 
+CLAUDE.MD
+memory.MD
+winforma-seo-estratega.md
