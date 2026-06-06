@@ -1,11 +1,46 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const INSTAGRAM_ACCESS_TOKEN = Deno.env.get("INSTAGRAM_ACCESS_TOKEN") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const BASE_URL = Deno.env.get("BASE_URL") ?? "";
 const BASE_SERVICE_ROLE_KEY = Deno.env.get("BASE_SERVICE_ROLE_KEY") ?? "";
 const STORAGE_BUCKET = Deno.env.get("STORAGE_BUCKET") ?? "article-images";
 const INSTAGRAM_FETCH_LIMIT = Number(Deno.env.get("INSTAGRAM_FETCH_LIMIT") ?? "10");
+
+async function getInstagramToken(supabase: SupabaseClient): Promise<string> {
+  const { data } = await supabase
+    .from("config")
+    .select("value")
+    .eq("key", "instagram_access_token")
+    .maybeSingle();
+
+  return data?.value || Deno.env.get("INSTAGRAM_ACCESS_TOKEN") || "";
+}
+
+async function refreshAndSaveToken(
+  supabase: SupabaseClient,
+  currentToken: string,
+): Promise<string> {
+  try {
+    const url = new URL("https://graph.instagram.com/refresh_access_token");
+    url.searchParams.set("grant_type", "ig_refresh_token");
+    url.searchParams.set("access_token", currentToken);
+
+    const response = await fetch(url);
+    if (!response.ok) return currentToken;
+
+    const data = await response.json();
+    const newToken = data.access_token;
+    if (!newToken || newToken === currentToken) return currentToken;
+
+    await supabase
+      .from("config")
+      .upsert({ key: "instagram_access_token", value: newToken, updated_at: new Date().toISOString() });
+
+    return newToken;
+  } catch {
+    return currentToken;
+  }
+}
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
   Regional: [
@@ -72,7 +107,7 @@ function captionToParagraphs(caption: string) {
 
   let blocks = cleaned
     .split(/\n\s*\n/g)
-    .map((block) => block.trim().replace(/^[\-•\s]+|[\-•\s]+$/g, ""))
+    .map((block) => block.trim().replace(/^[•\s-]+|[•\s-]+$/g, ""))
     .filter(Boolean);
 
   if (blocks.length === 1) {
@@ -148,10 +183,10 @@ function buildPostHtml(paragraphs: string[]) {
   return `<div class='winf-body' style='padding-top:30px; font-size:18px; line-height:1.6;'>${blocks}</div>`;
 }
 
-async function fetchInstagramMedia(limit: number) {
+async function fetchInstagramMedia(limit: number, token: string) {
   const url = new URL("https://graph.instagram.com/me/media");
   url.searchParams.set("fields", "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp");
-  url.searchParams.set("access_token", INSTAGRAM_ACCESS_TOKEN);
+  url.searchParams.set("access_token", token);
   url.searchParams.set("limit", String(limit));
 
   const response = await fetch(url, { method: "GET" });
@@ -233,7 +268,7 @@ function guessFileExtension(contentType: string | null, url: string) {
 }
 
 async function uploadImageToStorage(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   remoteImageUrl: string,
   slug: string,
 ) {
@@ -271,7 +306,7 @@ async function uploadImageToStorage(
 
 Deno.serve(async () => {
   try {
-    if (!INSTAGRAM_ACCESS_TOKEN || !OPENAI_API_KEY || !BASE_URL || !BASE_SERVICE_ROLE_KEY) {
+    if (!OPENAI_API_KEY || !BASE_URL || !BASE_SERVICE_ROLE_KEY) {
       return json({ error: "Missing required secrets" }, 500);
     }
 
@@ -279,7 +314,14 @@ Deno.serve(async () => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const mediaItems = await fetchInstagramMedia(INSTAGRAM_FETCH_LIMIT);
+    const currentToken = await getInstagramToken(supabase);
+    if (!currentToken) {
+      return json({ error: "Missing INSTAGRAM_ACCESS_TOKEN" }, 500);
+    }
+
+    const token = await refreshAndSaveToken(supabase, currentToken);
+
+    const mediaItems = await fetchInstagramMedia(INSTAGRAM_FETCH_LIMIT, token);
 
     for (const media of mediaItems) {
       const permalink = normalizeUrl(media.permalink ?? "");
@@ -302,8 +344,7 @@ Deno.serve(async () => {
 
       const category = guessCategory(paragraphs.join(" "));
       const { title, summary, body } = await rewriteWithOpenAI(paragraphs, category);
-      const cleanedParagraphs = removeDuplicateLeadTitle(title, paragraphs);
-      const finalSummary = summary || makeMetaDescription(cleanedParagraphs, 110);
+      const finalSummary = summary || makeMetaDescription(removeDuplicateLeadTitle(title, paragraphs), 110);
       const slug = slugify(title || `instagram-${media.id || "post"}`);
       const remoteImageUrl = media.thumbnail_url || media.media_url || "";
       const imageUrl = remoteImageUrl
@@ -333,6 +374,10 @@ Deno.serve(async () => {
 
       if (error) {
         throw error;
+      }
+
+      if (!data) {
+        throw new Error("Upsert returned no data");
       }
 
       return json({
