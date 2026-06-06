@@ -21,6 +21,18 @@ async function refreshAndSaveToken(
   currentToken: string,
 ): Promise<string> {
   try {
+    const { data: expiryRow } = await supabase
+      .from("config")
+      .select("value")
+      .eq("key", "instagram_token_expires_at")
+      .maybeSingle();
+
+    if (expiryRow?.value) {
+      const expiresAt = new Date(expiryRow.value);
+      const daysLeft = (expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      if (daysLeft > 30) return currentToken;
+    }
+
     const url = new URL("https://graph.instagram.com/refresh_access_token");
     url.searchParams.set("grant_type", "ig_refresh_token");
     url.searchParams.set("access_token", currentToken);
@@ -30,11 +42,14 @@ async function refreshAndSaveToken(
 
     const data = await response.json();
     const newToken = data.access_token;
-    if (!newToken || newToken === currentToken) return currentToken;
+    if (!newToken) return currentToken;
 
-    await supabase
-      .from("config")
-      .upsert({ key: "instagram_access_token", value: newToken, updated_at: new Date().toISOString() });
+    const expiresAt = new Date(Date.now() + (data.expires_in ?? 5184000) * 1000).toISOString();
+
+    await supabase.from("config").upsert([
+      { key: "instagram_access_token", value: newToken, updated_at: new Date().toISOString() },
+      { key: "instagram_token_expires_at", value: expiresAt, updated_at: new Date().toISOString() },
+    ]);
 
     return newToken;
   } catch {
