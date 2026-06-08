@@ -1,5 +1,24 @@
+async function getTokenFromSupabase() {
+  const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) return null;
+
+  const res = await fetch(
+    `${supabaseUrl}/rest/v1/config?key=eq.instagram_access_token&select=value&limit=1`,
+    {
+      headers: {
+        apikey: serviceRoleKey,
+        Authorization: `Bearer ${serviceRoleKey}`,
+      },
+    }
+  );
+  if (!res.ok) return null;
+  const rows = await res.json();
+  return rows?.[0]?.value || null;
+}
+
 export default async function handler(_req, res) {
-  const token = process.env.INSTAGRAM_ACCESS_TOKEN;
+  const token = await getTokenFromSupabase() || process.env.INSTAGRAM_ACCESS_TOKEN;
 
   if (!token) {
     return res.status(200).json({ configured: false });

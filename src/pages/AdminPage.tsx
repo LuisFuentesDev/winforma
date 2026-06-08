@@ -84,6 +84,7 @@ const AdminPage = () => {
   const [isSavingAd, setIsSavingAd] = useState(false);
   const [isUploadingAdImage, setIsUploadingAdImage] = useState(false);
   const { dark, setDark } = useThemePreference();
+  const [categoryFilter, setCategoryFilter] = useState<string>("Todas");
 
   const selectedAd = useMemo(
     () => ads.find((ad) => ad.slot === selectedAdSlot) ?? null,
@@ -442,8 +443,31 @@ const AdminPage = () => {
               {isFetchingArticles && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
             </div>
 
+            {/* Filtro por categoría */}
+            {(() => {
+              const cats = ["Todas", ...Array.from(new Set(articles.map((a) => a.category))).sort()];
+              return (
+                <div className="mb-4 flex flex-wrap gap-1.5">
+                  {cats.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setCategoryFilter(cat)}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                        categoryFilter === cat
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
+
             <div className="space-y-2">
-              {articles.map((article) => (
+              {articles.filter((a) => categoryFilter === "Todas" || a.category === categoryFilter).map((article) => (
                 <button
                   key={article.id}
                   type="button"
@@ -476,9 +500,9 @@ const AdminPage = () => {
                 </button>
               ))}
 
-              {!articles.length && !isFetchingArticles && (
+              {!articles.filter((a) => categoryFilter === "Todas" || a.category === categoryFilter).length && !isFetchingArticles && (
                 <p className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
-                  Aún no hay artículos cargados en el panel.
+                  {categoryFilter === "Todas" ? "Aún no hay artículos cargados en el panel." : `No hay artículos en la categoría ${categoryFilter}.`}
                 </p>
               )}
             </div>
