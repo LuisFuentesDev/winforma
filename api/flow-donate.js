@@ -65,7 +65,7 @@ export default async function handler(request, response) {
       amount: String(amount),
       email: email || "donante@winforma.cl",
       urlConfirmation: `${siteUrl}/api/flow-webhook`,
-      urlReturn: `${siteUrl}/gracias`,
+      urlReturn: `${siteUrl}/api/flow-return`,
       ...(name ? { name } : {}),
     });
 
