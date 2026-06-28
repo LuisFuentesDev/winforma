@@ -64,6 +64,13 @@ const Header = () => {
             <button aria-label="Search" onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }} className="opacity-75 hover:opacity-100 transition-opacity">
               <Search size={14} />
             </button>
+            <Link
+              to="/donar"
+              className="lg:hidden inline-block px-2.5 py-0.5 text-[11px] font-bold font-sans uppercase tracking-wide text-white rounded"
+              style={{ backgroundColor: "#FF1616" }}
+            >
+              Donar
+            </Link>
           </div>
         </div>
       </div>
@@ -123,7 +130,7 @@ const Header = () => {
                 </li>
               );
             })}
-            <li className="ml-auto">
+            <li className="ml-auto flex items-center gap-2">
               {extraLinks.map(({ label, href }) => {
                 const active = location.pathname === href;
                 return (
@@ -138,6 +145,13 @@ const Header = () => {
                   </Link>
                 );
               })}
+              <Link
+                to="/donar"
+                className="inline-block px-3 py-1.5 text-[11px] font-bold font-sans uppercase tracking-[0.12em] text-white rounded transition-colors"
+                style={{ backgroundColor: "#FF1616" }}
+              >
+                Donar
+              </Link>
             </li>
           </ul>
         </div>
