@@ -13,21 +13,25 @@ const fmt = (n: number) =>
 
 export default function DonatePage() {
   const [amount, setAmount] = useState<number | null>(null);
+  const [customAmount, setCustomAmount] = useState("");
+  const [showCustom, setShowCustom] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const finalAmount = showCustom ? (parseInt(customAmount.replace(/\D/g, "")) || null) : amount;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!amount) { setError("Elige un monto"); return; }
+    if (!finalAmount || finalAmount < 500) { setError("El monto mínimo es $500"); return; }
     setError("");
     setLoading(true);
     try {
       const res = await fetch("/api/flow-donate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, name, email }),
+        body: JSON.stringify({ amount: finalAmount, name, email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error desconocido");
@@ -51,15 +55,15 @@ export default function DonatePage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Label className="text-base font-semibold mb-3 block">Elige un monto</Label>
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
+            <Label className="text-base font-semibold mb-3 block">Elige un monto <span className="text-xs font-normal text-gray-400">* mínimo $500</span></Label>
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-3">
               {AMOUNTS.map((a) => (
                 <button
                   key={a}
                   type="button"
-                  onClick={() => setAmount(a)}
+                  onClick={() => { setAmount(a); setShowCustom(false); setCustomAmount(""); }}
                   className={`rounded-lg border-2 py-3 text-sm font-bold transition-colors ${
-                    amount === a
+                    !showCustom && amount === a
                       ? "border-red-600 bg-red-600 text-white"
                       : "border-gray-200 hover:border-red-400"
                   }`}
@@ -67,7 +71,31 @@ export default function DonatePage() {
                   {fmt(a)}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => { setShowCustom(true); setAmount(null); }}
+                className={`rounded-lg border-2 py-3 text-sm font-bold transition-colors ${
+                  showCustom
+                    ? "border-red-600 bg-red-600 text-white"
+                    : "border-gray-200 hover:border-red-400"
+                }`}
+              >
+                Otro monto
+              </button>
             </div>
+            {showCustom && (
+              <div className="mt-3">
+                <Input
+                  autoFocus
+                  type="number"
+                  min={500}
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  placeholder="Ingresa el monto en CLP"
+                  className="text-center text-lg font-bold"
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -98,11 +126,11 @@ export default function DonatePage() {
 
           <Button
             type="submit"
-            disabled={!amount || loading}
+            disabled={!finalAmount || loading}
             className="w-full text-base py-6"
             style={{ backgroundColor: "#FF1616" }}
           >
-            {loading ? "Redirigiendo…" : amount ? `Donar ${fmt(amount)}` : "Selecciona un monto"}
+            {loading ? "Redirigiendo…" : finalAmount ? `Donar ${fmt(finalAmount)}` : "Selecciona un monto"}
           </Button>
         </form>
 

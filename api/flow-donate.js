@@ -5,7 +5,7 @@ const FLOW_BASE = process.env.FLOW_ENV === "production"
   ? "https://www.flow.cl/api"
   : "https://sandbox.flow.cl/api";
 
-const ALLOWED_AMOUNTS = [1000, 2500, 5000, 10000, 20000];
+const MIN_AMOUNT = 500;
 
 function flowSign(params, secret) {
   const keys = Object.keys(params).sort();
@@ -41,8 +41,8 @@ export default async function handler(request, response) {
   const name = String(body.name || "").trim().slice(0, 100);
   const email = String(body.email || "").trim().slice(0, 200);
 
-  if (!ALLOWED_AMOUNTS.includes(amount)) {
-    response.status(422).json({ error: "Monto no válido" });
+  if (!amount || amount < MIN_AMOUNT) {
+    response.status(422).json({ error: "El monto mínimo es $500" });
     return;
   }
 
