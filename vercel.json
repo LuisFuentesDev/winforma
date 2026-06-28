@@ -49,6 +49,14 @@
     {
       "source": "/preview",
       "destination": "/index.html"
+    },
+    {
+      "source": "/donar",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/gracias",
+      "destination": "/index.html"
     }
   ]
 }
