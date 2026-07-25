@@ -57,6 +57,10 @@
     {
       "source": "/gracias",
       "destination": "/index.html"
+    },
+    {
+      "source": "/red-comunitaria-privacidad",
+      "destination": "/index.html"
     }
   ]
 }
