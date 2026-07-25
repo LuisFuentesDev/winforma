@@ -18,6 +18,7 @@ import PreviewPage from "./pages/PreviewPage.tsx";
 import DonatePage from "./pages/DonatePage.tsx";
 import GraciasPage from "./pages/GraciasPage.tsx";
 import RedComunitariaPrivacy from "./pages/RedComunitariaPrivacy.tsx";
+import RedComunitariaTerms from "./pages/RedComunitariaTerms.tsx";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/donar" element={<DonatePage />} />
           <Route path="/gracias" element={<GraciasPage />} />
           <Route path="/red-comunitaria-privacidad" element={<RedComunitariaPrivacy />} />
+          <Route path="/red-comunitaria-terminos" element={<RedComunitariaTerms />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

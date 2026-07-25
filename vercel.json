@@ -61,6 +61,10 @@
     {
       "source": "/red-comunitaria-privacidad",
       "destination": "/index.html"
+    },
+    {
+      "source": "/red-comunitaria-terminos",
+      "destination": "/index.html"
     }
   ]
 }
