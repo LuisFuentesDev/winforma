@@ -65,6 +65,10 @@
     {
       "source": "/red-comunitaria-terminos",
       "destination": "/index.html"
+    },
+    {
+      "source": "/red-comunitaria-soporte",
+      "destination": "/index.html"
     }
   ]
 }
