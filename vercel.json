@@ -69,6 +69,10 @@
     {
       "source": "/red-comunitaria-soporte",
       "destination": "/index.html"
+    },
+    {
+      "source": "/red-comunitaria",
+      "destination": "/index.html"
     }
   ]
 }
