@@ -39,17 +39,24 @@
       gtag('consent', 'default', { analytics_storage: 'denied' });
     </script>
 
-    <!-- Google Reader Revenue Manager -->
-    <script async type="application/javascript" src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
+    <!-- Google Reader Revenue Manager (no en /apk, es una pagina de descarga, no un articulo) -->
     <script>
-      (self.SWG_BASIC = self.SWG_BASIC || []).push(basicSubscriptions => {
-        basicSubscriptions.init({
-          type: "NewsArticle",
-          isPartOfType: ["Product"],
-          isPartOfProductId: "CAowmZjgCw:openaccess",
-          clientOptions: { theme: "light", lang: "es" },
+      if (!location.pathname.startsWith("/apk")) {
+        var swgScript = document.createElement("script");
+        swgScript.async = true;
+        swgScript.type = "application/javascript";
+        swgScript.src = "https://news.google.com/swg/js/v1/swg-basic.js";
+        document.head.appendChild(swgScript);
+
+        (self.SWG_BASIC = self.SWG_BASIC || []).push(basicSubscriptions => {
+          basicSubscriptions.init({
+            type: "NewsArticle",
+            isPartOfType: ["Product"],
+            isPartOfProductId: "CAowmZjgCw:openaccess",
+            clientOptions: { theme: "light", lang: "es" },
+          });
         });
-      });
+      }
     </script>
 
     <!-- Google AdSense -->
