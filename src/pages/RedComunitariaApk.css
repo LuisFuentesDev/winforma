@@ -99,17 +99,53 @@
 .rca-sub {
   color: var(--phosphor-dim);
   font-size: 0.95rem;
-  margin: 0 0 3rem;
+  margin: 0 0 2.5rem;
   line-height: 1.6;
 }
 
-.rca-status {
-  font-size: 0.8rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--amber);
+.rca-channels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
   margin-bottom: 2.5rem;
-  min-height: 1.2em;
+}
+
+.rca-channel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--phosphor-dim);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--phosphor-dim);
+  font-family: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rca-channel-num {
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.rca-channel-btn:hover {
+  border-color: var(--phosphor);
+  color: var(--phosphor);
+}
+
+.rca-channel-btn.active {
+  border-color: var(--phosphor);
+  color: var(--phosphor);
+  box-shadow: 0 0 14px rgba(107, 255, 176, 0.35);
+}
+
+.rca-channel-btn.active .rca-channel-num {
+  color: var(--phosphor);
 }
 
 .rca-cta {
