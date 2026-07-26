@@ -52,10 +52,6 @@ const RedComunitariaApk = () => {
           encontrar <strong>red-comunitaria.apk</strong> para tocarlo e instalarlo. El
           navegador no retoma la instalación solo después de ese paso.
         </div>
-
-        <a className="rca-back" href="/red-comunitaria">
-          ← Volver a la ficha de la app
-        </a>
       </div>
     </div>
   );

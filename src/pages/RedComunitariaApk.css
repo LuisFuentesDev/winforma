@@ -157,17 +157,3 @@
 .rca-lowerthird strong {
   color: var(--phosphor);
 }
-
-.rca-back {
-  display: inline-block;
-  margin-top: 2.2rem;
-  color: var(--phosphor-dim);
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.rca-back:hover {
-  color: var(--phosphor);
-}
