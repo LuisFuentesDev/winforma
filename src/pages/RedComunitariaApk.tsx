@@ -1,41 +1,73 @@
-import { useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { useEffect, useState } from "react";
 import Seo from "@/components/Seo";
+import "./RedComunitariaApk.css";
 
 const APK_URL = "/downloads/red-comunitaria.apk";
+const FONTS_HREF =
+  "https://fonts.googleapis.com/css2?family=Unbounded:wght@800&family=JetBrains+Mono:wght@400;500;700&display=swap";
 
 const RedComunitariaApk = () => {
+  const [status, setStatus] = useState("SINTONIZANDO...");
+
   useEffect(() => {
-    window.location.href = APK_URL;
+    let link = document.querySelector<HTMLLinkElement>(`link[href="${FONTS_HREF}"]`);
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = FONTS_HREF;
+      document.head.appendChild(link);
+    }
+
+    const found = setTimeout(() => {
+      setStatus("SEÑAL ENCONTRADA — INICIANDO DESCARGA");
+      window.location.href = APK_URL;
+    }, 1400);
+
+    return () => clearTimeout(found);
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="rca">
       <Seo
         title="Descargar Red Comunitaria para Smart TV"
         description="Descarga el APK de Red Comunitaria: Señal Abierta Digital para instalar en tu Smart TV."
         path="/red-comunitaria-apk"
       />
-      <Header />
 
-      <main className="container mx-auto px-4 py-12 max-w-3xl text-center">
-        <h1 className="text-2xl lg:text-3xl font-black font-serif mb-4">
-          Descargando Red Comunitaria...
-        </h1>
-        <p className="text-muted-foreground font-sans mb-6">
-          Si la descarga no comienza automáticamente,{" "}
-          <a href={APK_URL} className="text-primary underline underline-offset-2 hover:opacity-80">
-            haz clic aquí
-          </a>
-          .
-        </p>
-        <p className="text-sm text-muted-foreground font-sans">
-          Instálalo desde el explorador de archivos de tu Smart TV. Si te pide habilitar "orígenes desconocidos", acepta para continuar.
-        </p>
-      </main>
+      <div className="rca-panel">
+        <div className="rca-channel">
+          <span className="rca-dot" /> CANAL <b>TVD · 00</b> — SEÑAL ABIERTA DIGITAL
+        </div>
 
-      <Footer />
+        <h1 className="rca-title">Red Comunitaria</h1>
+        <p className="rca-sub">
+          Instalador para Smart TV. Directorio de televisión comunitaria de Chile,
+          de Arica a Magallanes.
+        </p>
+
+        <div className="rca-tuning" aria-hidden="true">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <span key={i} />
+          ))}
+        </div>
+
+        <p className="rca-status">{status}</p>
+
+        <a className="rca-cta" href={APK_URL}>
+          Descargar APK
+          <small>Si no comienza sola, toca aquí</small>
+        </a>
+
+        <div className="rca-lowerthird">
+          <strong>Instrucciones de instalación —</strong> abre el archivo descargado desde
+          el explorador de tu Smart TV. Si pide habilitar <em>"orígenes desconocidos"</em>,
+          acepta para continuar con la instalación.
+        </div>
+
+        <a className="rca-back" href="/red-comunitaria">
+          ← Volver a la ficha de la app
+        </a>
+      </div>
     </div>
   );
 };
