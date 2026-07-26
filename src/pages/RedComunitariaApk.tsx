@@ -59,9 +59,11 @@ const RedComunitariaApk = () => {
         </a>
 
         <div className="rca-lowerthird">
-          <strong>Instrucciones de instalación —</strong> abre el archivo descargado desde
-          el explorador de tu Smart TV. Si pide habilitar <em>"orígenes desconocidos"</em>,
-          acepta para continuar con la instalación.
+          <strong>Instrucciones de instalación —</strong> si tu TV pide habilitar{" "}
+          <em>"orígenes desconocidos"</em>, actívalo y luego abre la app{" "}
+          <strong>Descargas</strong> (o el explorador de archivos) de tu Smart TV: ahí vas a
+          encontrar <strong>red-comunitaria.apk</strong> para tocarlo e instalarlo. El
+          navegador no retoma la instalación solo después de ese paso.
         </div>
 
         <a className="rca-back" href="/red-comunitaria">
