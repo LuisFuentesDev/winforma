@@ -49,7 +49,7 @@ const App = () => (
           <Route path="/red-comunitaria-terminos" element={<RedComunitariaTerms />} />
           <Route path="/red-comunitaria-soporte" element={<RedComunitariaSupport />} />
           <Route path="/red-comunitaria" element={<RedComunitariaLanding />} />
-          <Route path="/red-comunitaria-apk" element={<RedComunitariaApk />} />
+          <Route path="/apk" element={<RedComunitariaApk />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

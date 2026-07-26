@@ -31,7 +31,7 @@ const RedComunitariaApk = () => {
       <Seo
         title="Descargar Red Comunitaria para Smart TV"
         description="Descarga el APK de Red Comunitaria: Señal Abierta Digital para instalar en tu Smart TV."
-        path="/red-comunitaria-apk"
+        path="/apk"
       />
 
       <div className="rca-panel">
