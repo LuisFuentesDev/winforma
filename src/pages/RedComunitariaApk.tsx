@@ -29,10 +29,9 @@ const PLATFORMS = [
     fileName: "red-comunitaria.ipk",
     instructions: (
       <>
-        Este instalador (<strong>.ipk</strong>) requiere <strong>Developer Mode</strong>{" "}
-        activado en tu TV LG y subirlo desde el navegador del propio TV apuntando a{" "}
-        <strong>http://[IP-de-tu-TV]:9998</strong>, o instalarlo vía{" "}
-        <strong>ares-install</strong> desde un computador con LG webOS CLI.
+        1. Busca e instala la app <strong>Developer Mode</strong> en el LG Content Store de
+        tu TV. 2. Ábrela, crea una cuenta LG gratis si te la pide, y actívala. 3. Desde ahí
+        mismo puedes instalar este archivo <strong>.ipk</strong> directo en tu TV.
       </>
     ),
   },
