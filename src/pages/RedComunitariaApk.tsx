@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Seo from "@/components/Seo";
 import "./RedComunitariaApk.css";
 
@@ -7,8 +7,6 @@ const FONTS_HREF =
   "https://fonts.googleapis.com/css2?family=Unbounded:wght@800&family=JetBrains+Mono:wght@400;500;700&display=swap";
 
 const RedComunitariaApk = () => {
-  const [status, setStatus] = useState("SINTONIZANDO...");
-
   useEffect(() => {
     let link = document.querySelector<HTMLLinkElement>(`link[href="${FONTS_HREF}"]`);
     if (!link) {
@@ -18,12 +16,7 @@ const RedComunitariaApk = () => {
       document.head.appendChild(link);
     }
 
-    const found = setTimeout(() => {
-      setStatus("SEÑAL ENCONTRADA — INICIANDO DESCARGA");
-      window.location.href = APK_URL;
-    }, 1400);
-
-    return () => clearTimeout(found);
+    window.location.href = APK_URL;
   }, []);
 
   return (
@@ -45,13 +38,7 @@ const RedComunitariaApk = () => {
           de Arica a Magallanes.
         </p>
 
-        <div className="rca-tuning" aria-hidden="true">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <span key={i} />
-          ))}
-        </div>
-
-        <p className="rca-status">{status}</p>
+        <p className="rca-status">SEÑAL ENCONTRADA — DESCARGANDO</p>
 
         <a className="rca-cta" href={APK_URL}>
           Descargar APK
