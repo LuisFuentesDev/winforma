@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/red-comunitaria-apk",
-      "destination": "/downloads/red-comunitaria.apk"
+      "destination": "/index.html"
     },
     {
       "source": "/share/:slug",

@@ -21,6 +21,7 @@ import RedComunitariaPrivacy from "./pages/RedComunitariaPrivacy.tsx";
 import RedComunitariaTerms from "./pages/RedComunitariaTerms.tsx";
 import RedComunitariaSupport from "./pages/RedComunitariaSupport.tsx";
 import RedComunitariaLanding from "./pages/RedComunitariaLanding.tsx";
+import RedComunitariaApk from "./pages/RedComunitariaApk.tsx";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/red-comunitaria-terminos" element={<RedComunitariaTerms />} />
           <Route path="/red-comunitaria-soporte" element={<RedComunitariaSupport />} />
           <Route path="/red-comunitaria" element={<RedComunitariaLanding />} />
+          <Route path="/red-comunitaria-apk" element={<RedComunitariaApk />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
