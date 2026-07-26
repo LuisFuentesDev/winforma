@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Seo from "@/components/Seo";
 import "./RedComunitariaApk.css";
 
 const FONTS_HREF =
   "https://fonts.googleapis.com/css2?family=Unbounded:wght@800&family=JetBrains+Mono:wght@400;500;700&display=swap";
 
-type PlatformKey = "android" | "webos";
-
-const PLATFORMS: Record<
-  PlatformKey,
-  { label: string; num: string; file: string; fileName: string; instructions: JSX.Element }
-> = {
-  android: {
-    label: "Android TV / Fire TV / Celular",
+const PLATFORMS = [
+  {
+    key: "android",
     num: "01",
+    label: "Android TV / Fire TV / Celular",
     file: "/downloads/red-comunitaria.apk",
     fileName: "red-comunitaria.apk",
     instructions: (
@@ -25,9 +21,10 @@ const PLATFORMS: Record<
       </>
     ),
   },
-  webos: {
-    label: "LG webOS",
+  {
+    key: "webos",
     num: "02",
+    label: "LG webOS",
     file: "/downloads/red-comunitaria.ipk",
     fileName: "red-comunitaria.ipk",
     instructions: (
@@ -39,12 +36,9 @@ const PLATFORMS: Record<
       </>
     ),
   },
-};
+] as const;
 
 const RedComunitariaApk = () => {
-  const [platform, setPlatform] = useState<PlatformKey>("android");
-  const current = PLATFORMS[platform];
-
   useEffect(() => {
     let link = document.querySelector<HTMLLinkElement>(`link[href="${FONTS_HREF}"]`);
     if (!link) {
@@ -74,32 +68,16 @@ const RedComunitariaApk = () => {
           plataforma para descargar el instalador.
         </p>
 
-        <div className="rca-channels" role="tablist" aria-label="Plataforma">
-          {(Object.keys(PLATFORMS) as PlatformKey[]).map((key) => {
-            const p = PLATFORMS[key];
-            return (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={platform === key}
-                className={`rca-channel-btn${platform === key ? " active" : ""}`}
-                onClick={() => setPlatform(key)}
-              >
-                <span className="rca-channel-num">{p.num}</span>
-                {p.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <a className="rca-cta" href={current.file} key={platform}>
-          Descargar {current.fileName}
-          <small>Si no comienza sola, toca aquí</small>
-        </a>
-
-        <div className="rca-lowerthird">
-          <strong>Instrucciones de instalación —</strong> {current.instructions}
+        <div className="rca-cards">
+          {PLATFORMS.map((p) => (
+            <a key={p.key} className="rca-card" href={p.file}>
+              <span className="rca-card-num">{p.num}</span>
+              <span className="rca-card-body">
+                <span className="rca-card-label">{p.label}</span>
+                <span className="rca-card-instructions">{p.instructions}</span>
+              </span>
+            </a>
+          ))}
         </div>
       </div>
     </div>
