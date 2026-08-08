@@ -15,6 +15,7 @@ async function fetchArticles(): Promise<Article[]> {
     .from("articles")
     .select(ARTICLES_SELECT)
     .eq("status", "published")
+    .eq("site", "winforma")
     .order("published_at", { ascending: false });
 
   if (error || !data?.length) {
@@ -33,6 +34,7 @@ async function fetchArticleBySlug(slug?: string): Promise<Article | null> {
     .from("articles")
     .select(ARTICLES_SELECT)
     .eq("status", "published")
+    .eq("site", "winforma")
     .eq("slug", slug)
     .maybeSingle();
 

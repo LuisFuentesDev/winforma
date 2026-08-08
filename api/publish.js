@@ -60,6 +60,7 @@ export default async function handler(request, response) {
       category: payload.category,
       image_url: payload.image_url || null,
       source_url: payload.source_url || null,
+      site: payload.site || "winforma",
       breaking: Boolean(payload.breaking),
       status: payload.status,
       published_at: payload.published_at,

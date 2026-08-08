@@ -6,25 +6,46 @@ const BASE_SERVICE_ROLE_KEY = Deno.env.get("BASE_SERVICE_ROLE_KEY") ?? "";
 const STORAGE_BUCKET = Deno.env.get("STORAGE_BUCKET") ?? "article-images";
 const INSTAGRAM_FETCH_LIMIT = Number(Deno.env.get("INSTAGRAM_FETCH_LIMIT") ?? "10");
 
-async function getInstagramToken(supabase: SupabaseClient): Promise<string> {
+// Nombre del autor mostrado por sitio; agrega uno aquí si se suma un tercer frontend.
+const SITE_AUTHORS: Record<string, string> = {
+  winforma: "Equipo Winforma",
+  abajolalinea: "Abajo e' la Línea",
+};
+
+function tokenKey(site: string) {
+  return `instagram_access_token:${site}`;
+}
+
+function tokenExpiryKey(site: string) {
+  return `instagram_token_expires_at:${site}`;
+}
+
+async function getInstagramToken(supabase: SupabaseClient, site: string): Promise<string> {
   const { data } = await supabase
     .from("config")
     .select("value")
-    .eq("key", "instagram_access_token")
+    .eq("key", tokenKey(site))
     .maybeSingle();
 
-  return data?.value || Deno.env.get("INSTAGRAM_ACCESS_TOKEN") || "";
+  // Fallback al token/env legacy (sin sufijo de sitio) para no romper Winforma
+  // mientras se migran las keys de config.
+  return (
+    data?.value ||
+    (site === "winforma" ? Deno.env.get("INSTAGRAM_ACCESS_TOKEN") ?? "" : "") ||
+    ""
+  );
 }
 
 async function refreshAndSaveToken(
   supabase: SupabaseClient,
   currentToken: string,
+  site: string,
 ): Promise<string> {
   try {
     const { data: expiryRow } = await supabase
       .from("config")
       .select("value")
-      .eq("key", "instagram_token_expires_at")
+      .eq("key", tokenExpiryKey(site))
       .maybeSingle();
 
     if (expiryRow?.value) {
@@ -47,8 +68,8 @@ async function refreshAndSaveToken(
     const expiresAt = new Date(Date.now() + (data.expires_in ?? 5184000) * 1000).toISOString();
 
     await supabase.from("config").upsert([
-      { key: "instagram_access_token", value: newToken, updated_at: new Date().toISOString() },
-      { key: "instagram_token_expires_at", value: expiresAt, updated_at: new Date().toISOString() },
+      { key: tokenKey(site), value: newToken, updated_at: new Date().toISOString() },
+      { key: tokenExpiryKey(site), value: expiresAt, updated_at: new Date().toISOString() },
     ]);
 
     return newToken;
@@ -57,24 +78,47 @@ async function refreshAndSaveToken(
   }
 }
 
-const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  Regional: [
-    "temuco", "araucanía", "cautín", "malleco", "villarrica", "angol", "pucón",
-    "padre las casas", "lautaro", "vilcún", "freire", "imperial", "cholchol",
-  ],
-  Nacional: [
-    "gobierno", "presidente", "congreso", "senado", "diputados", "ministerio",
-    "moneda", "carabineros", "pdi", "fiscalía", "contraloría", "hacienda", "chile",
-  ],
-  Internacional: [
-    "españa", "eeuu", "estados unidos", "rusia", "china", "ucrania", "irán",
-    "israel", "gaza", "otan", "onu", "unión europea", "bruselas", "méxico",
-  ],
-  Deportes: [
-    "colo-colo", "universidad de chile", "universidad católica", "deportes temuco",
-    "selección chilena", "fútbol", "copa libertadores", "primera b", "tenis",
-    "nicolás jarry", "alejandro tabilo",
-  ],
+// Cada sitio tiene sus propias secciones/páginas, así que la categorización por
+// keywords se define por sitio en vez de una sola lista global.
+const SITE_CATEGORY_KEYWORDS: Record<string, Record<string, string[]>> = {
+  winforma: {
+    Regional: [
+      "temuco", "araucanía", "cautín", "malleco", "villarrica", "angol", "pucón",
+      "padre las casas", "lautaro", "vilcún", "freire", "imperial", "cholchol",
+    ],
+    Nacional: [
+      "gobierno", "presidente", "congreso", "senado", "diputados", "ministerio",
+      "moneda", "carabineros", "pdi", "fiscalía", "contraloría", "hacienda", "chile",
+    ],
+    Internacional: [
+      "españa", "eeuu", "estados unidos", "rusia", "china", "ucrania", "irán",
+      "israel", "gaza", "otan", "onu", "unión europea", "bruselas", "méxico",
+    ],
+    Deportes: [
+      "colo-colo", "universidad de chile", "universidad católica", "deportes temuco",
+      "selección chilena", "fútbol", "copa libertadores", "primera b", "tenis",
+      "nicolás jarry", "alejandro tabilo",
+    ],
+  },
+  abajolalinea: {
+    Deportes: [
+      "caseta femenina", "fútbol femenino", "deportes temuco", "selección chilena",
+      "fútbol", "copa libertadores", "primera b", "cuadro local",
+    ],
+    Cultura: [
+      "feria", "cultural", "mapuche", "wallmapu", "territorio", "memoria",
+      "tradición", "taller", "encuentro cultural",
+    ],
+    Comunidad: [
+      "junta de vecinos", "agrupación", "organización social", "movimiento social",
+      "audiencia", "seguridad", "barrio", "vecinos",
+    ],
+  },
+};
+
+const DEFAULT_CATEGORY: Record<string, string> = {
+  winforma: "Nacional",
+  abajolalinea: "Comunidad",
 };
 
 type InstagramMedia = {
@@ -151,14 +195,15 @@ function removeDuplicateLeadTitle(title: string, paragraphs: string[]) {
     : paragraphs;
 }
 
-function guessCategory(text: string) {
+function guessCategory(text: string, site: string) {
   const lowered = text.toLowerCase();
-  const scores = Object.entries(CATEGORY_KEYWORDS).map(([category, keywords]) => ({
+  const keywordMap = SITE_CATEGORY_KEYWORDS[site] ?? SITE_CATEGORY_KEYWORDS.winforma;
+  const scores = Object.entries(keywordMap).map(([category, keywords]) => ({
     category,
     score: keywords.filter((keyword) => lowered.includes(keyword)).length,
   }));
   scores.sort((a, b) => b.score - a.score);
-  return scores[0]?.score ? scores[0].category : "Nacional";
+  return scores[0]?.score ? scores[0].category : (DEFAULT_CATEGORY[site] ?? "Nacional");
 }
 
 function makeMetaDescription(paragraphs: string[], maxLen = 120) {
@@ -214,9 +259,10 @@ async function fetchInstagramMedia(limit: number, token: string) {
   return (payload.data ?? []) as InstagramMedia[];
 }
 
-async function rewriteWithOpenAI(paragraphs: string[], category: string) {
+async function rewriteWithOpenAI(paragraphs: string[], category: string, site: string) {
+  const outlet = SITE_AUTHORS[site] ?? site;
   const prompt =
-    "Eres editor de Winforma. Recibirás el texto completo de una publicación de Instagram y debes convertirlo " +
+    `Eres editor de ${outlet}. Recibirás el texto completo de una publicación de Instagram y debes convertirlo ` +
     "en una nota periodística más desarrollada. No inventes datos ni agregues hechos no presentes en el texto fuente. " +
     "Devuelve JSON con las claves title, summary y body. El title debe ser un titular periodístico claro y breve. " +
     "El summary debe ser una bajada muy corta, coherente y autosuficiente, escrita en una sola oración, sin puntos suspensivos, " +
@@ -319,22 +365,34 @@ async function uploadImageToStorage(
   return data.publicUrl;
 }
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
   try {
     if (!OPENAI_API_KEY || !BASE_URL || !BASE_SERVICE_ROLE_KEY) {
       return json({ error: "Missing required secrets" }, 500);
     }
 
+    const url = new URL(req.url);
+    let site = url.searchParams.get("site") || "";
+    if (!site && req.method === "POST") {
+      try {
+        const body = await req.clone().json();
+        site = body?.site || "";
+      } catch {
+        // body vacío o no-JSON, se usa el default
+      }
+    }
+    site = site || "winforma";
+
     const supabase = createClient(BASE_URL, BASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const currentToken = await getInstagramToken(supabase);
+    const currentToken = await getInstagramToken(supabase, site);
     if (!currentToken) {
-      return json({ error: "Missing INSTAGRAM_ACCESS_TOKEN" }, 500);
+      return json({ error: `Missing Instagram access token for site "${site}"` }, 500);
     }
 
-    const token = await refreshAndSaveToken(supabase, currentToken);
+    const token = await refreshAndSaveToken(supabase, currentToken, site);
 
     const mediaItems = await fetchInstagramMedia(INSTAGRAM_FETCH_LIMIT, token);
 
@@ -346,6 +404,7 @@ Deno.serve(async () => {
         .from("articles")
         .select("id, slug")
         .eq("source_url", permalink)
+        .eq("site", site)
         .maybeSingle();
 
       if (existing) {
@@ -357,8 +416,8 @@ Deno.serve(async () => {
         continue;
       }
 
-      const category = guessCategory(paragraphs.join(" "));
-      const { title, summary, body } = await rewriteWithOpenAI(paragraphs, category);
+      const category = guessCategory(paragraphs.join(" "), site);
+      const { title, summary, body } = await rewriteWithOpenAI(paragraphs, category, site);
       const finalSummary = summary || makeMetaDescription(removeDuplicateLeadTitle(title, paragraphs), 110);
       const slug = slugify(title || `instagram-${media.id || "post"}`);
       const remoteImageUrl = media.thumbnail_url || media.media_url || "";
@@ -374,10 +433,11 @@ Deno.serve(async () => {
           title,
           summary: finalSummary,
           content: body,
-          author: "Equipo Winforma",
+          author: SITE_AUTHORS[site] ?? site,
           category,
           image_url: imageUrl,
           source_url: permalink,
+          site,
           breaking: false,
           status: "published",
           published_at: publishedAt,
