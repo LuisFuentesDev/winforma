@@ -103,15 +103,22 @@ const SITE_CATEGORY_KEYWORDS: Record<string, Record<string, string[]>> = {
   abajolalinea: {
     Deportes: [
       "caseta femenina", "fútbol femenino", "deportes temuco", "selección chilena",
-      "fútbol", "copa libertadores", "primera b", "cuadro local",
+      "fútbol", "copa libertadores", "primera b", "cuadro local", "liga femenina",
+      "ascenso femenino", "descenso", "semifinal", "cuartos de final", "partido",
+      "gol", "goles", "cancha", "estadio", "jugadoras", "jugador", "arquera",
+      "torneo", "campeonato", "delantera", "mediocampista", "portería", "árbitro",
     ],
     Cultura: [
       "feria", "cultural", "mapuche", "wallmapu", "territorio", "memoria",
-      "tradición", "taller", "encuentro cultural",
+      "tradición", "taller", "encuentro cultural", "cine club", "película",
+      "documental", "exposición", "artesanía", "música", "festival", "libro",
+      "centro cultural", "muestra", "obra de teatro", "danza",
     ],
     Comunidad: [
       "junta de vecinos", "agrupación", "organización social", "movimiento social",
-      "audiencia", "seguridad", "barrio", "vecinos",
+      "audiencia", "seguridad", "barrio", "vecinos", "municipalidad", "alcalde",
+      "inundación", "crecida", "emergencia", "onemi", "senapred", "clima",
+      "temporal", "nieve", "lluvia", "damnificados", "carabineros", "bomberos",
     ],
   },
 };
