@@ -24,6 +24,7 @@ const CardVertical = ({ article }: { article: Article }) => (
         category={article.category}
         className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
         loading="lazy"
+        width={400}
       />
     </div>
     <span className={`text-[10px] font-black font-sans uppercase tracking-[0.15em] ${getCategoryColor(article.category)}`}>
@@ -45,6 +46,7 @@ const CardHorizontal = ({ article }: { article: Article }) => (
         category={article.category}
         className="w-full h-[144px] object-cover object-top -translate-y-0 transition-transform duration-300 group-hover:scale-105"
         loading="lazy"
+        width={160}
       />
     </div>
     <div className="min-w-0">
@@ -69,6 +71,7 @@ const CardFeatured = ({ article }: { article: Article }) => (
         category={article.category}
         className="w-full h-56 md:h-72 object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
         loading="lazy"
+        width={600}
       />
     </div>
     <span className={`text-[10px] font-black font-sans uppercase tracking-[0.15em] ${getCategoryColor(article.category)}`}>
