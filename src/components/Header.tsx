@@ -6,7 +6,7 @@ import { useArticles } from "@/hooks/useArticles";
 import { useThemePreference } from "@/hooks/useThemePreference";
 import { useSections } from "@/hooks/useSections";
 
-const FALLBACK_CATEGORIES = ["Regional", "Nacional", "Internacional", "Deportes", "Reportajes", "Editorial"];
+const FALLBACK_CATEGORIES = ["Regional", "Nacional", "Internacional", "Deportes", "Reportajes", "Editorial", "Opinión Ciudadana"];
 const extraLinks = [{ label: "Tarifario", href: "/tarifario" }];
 
 const Header = () => {
