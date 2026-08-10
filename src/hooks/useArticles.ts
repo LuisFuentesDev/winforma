@@ -38,6 +38,25 @@ async function fetchArticlesPage(page: number, category?: string): Promise<Artic
   return (data as SupabaseArticle[]).map((a) => mapSupabaseArticle({ ...a, content: a.content ?? "" }));
 }
 
+export async function fetchArticlesBySlugs(slugs: string[]): Promise<Article[]> {
+  if (!supabase || !slugs.length) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("articles")
+    .select(ARTICLES_LIST_SELECT)
+    .eq("status", "published")
+    .eq("site", "winforma")
+    .in("slug", slugs);
+
+  if (error || !data?.length) {
+    return [];
+  }
+
+  return (data as SupabaseArticle[]).map((a) => mapSupabaseArticle({ ...a, content: a.content ?? "" }));
+}
+
 async function fetchArticleBySlug(slug?: string): Promise<Article | null> {
   if (!supabase || !slug) {
     return null;
