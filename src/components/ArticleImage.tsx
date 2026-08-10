@@ -7,9 +7,10 @@ interface ArticleImageProps {
   category?: string | null;
   className?: string;
   loading?: "eager" | "lazy";
+  fetchPriority?: "high" | "low" | "auto";
 }
 
-const ArticleImage = ({ src, alt, category, className, loading = "lazy" }: ArticleImageProps) => {
+const ArticleImage = ({ src, alt, category, className, loading = "lazy", fetchPriority }: ArticleImageProps) => {
   const fallbackSrc = getFallbackImageByCategory(category);
   const [currentSrc, setCurrentSrc] = useState(src || fallbackSrc);
 
@@ -19,6 +20,7 @@ const ArticleImage = ({ src, alt, category, className, loading = "lazy" }: Artic
       alt={alt}
       className={className}
       loading={loading}
+      fetchPriority={fetchPriority}
       onError={() => {
         if (currentSrc !== fallbackSrc) {
           setCurrentSrc(fallbackSrc);

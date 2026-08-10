@@ -5,8 +5,8 @@ import AdPlaceholder from "@/components/AdPlaceholder";
 import { ArrowLeft, Eye, Share2, ChevronRight } from "lucide-react";
 import { formatArticleDate } from "@/data/articles";
 import { usePageViews } from "@/hooks/usePageViews";
-import { useArticle, useArticles } from "@/hooks/useArticles";
-import { useState } from "react";
+import { useArticle, useRelatedArticles } from "@/hooks/useArticles";
+import { useMemo, useState } from "react";
 import Seo, { ORGANIZATION_ID, PUBLISHER, SITE_URL, WEBSITE_ID } from "@/components/Seo";
 import ArticleImage from "@/components/ArticleImage";
 import { getCategoryColor, getCategoryBadge } from "@/lib/category-colors";
@@ -44,9 +44,46 @@ function sanitizeArticleContent(content: string, title: string) {
 const ArticlePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading, isError } = useArticle(slug);
-  const { data: allArticles = [] } = useArticles();
+  const { data: related = [] } = useRelatedArticles(article?.category, article?.slug);
   const viewCount = usePageViews(slug ? `article-${slug}` : "");
   const [shareLabel, setShareLabel] = useState("Compartir");
+
+  const sanitizedContent = useMemo(
+    () => (article ? sanitizeArticleContent(article.content, article.title) : ""),
+    [article],
+  );
+
+  const schema = useMemo(() => {
+    if (!article) return null;
+    const articlePath = `/articulo/${article.slug}`;
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        PUBLISHER,
+        {
+          "@type": "WebSite",
+          "@id": WEBSITE_ID,
+          url: SITE_URL,
+          name: "WINFORMA",
+          inLanguage: "es-CL",
+          publisher: { "@id": ORGANIZATION_ID },
+        },
+        {
+          "@type": "NewsArticle",
+          headline: article.title,
+          description: article.summary,
+          image: [article.image.startsWith("http") ? article.image : `${SITE_URL}${article.image}`],
+          datePublished: article.publishedAt,
+          dateModified: article.publishedAt,
+          articleSection: article.category,
+          isAccessibleForFree: true,
+          author: { "@type": "Person", name: article.author },
+          publisher: { "@id": ORGANIZATION_ID },
+          mainEntityOfPage: `${SITE_URL}${articlePath}`,
+        },
+      ],
+    };
+  }, [article]);
 
   const handleShare = async () => {
     if (!article || typeof window === "undefined") return;
@@ -76,8 +113,19 @@ const ArticlePage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="container mx-auto px-4 py-16 text-center">
-          <p className="text-muted-foreground font-sans">Cargando artículo...</p>
+        <main className="container mx-auto px-4 py-8 max-w-3xl animate-pulse">
+          <div className="h-3 w-40 bg-muted rounded mb-6" />
+          <div className="h-5 w-24 bg-muted rounded mb-3" />
+          <div className="h-10 w-full bg-muted rounded mb-2" />
+          <div className="h-10 w-3/4 bg-muted rounded mb-4" />
+          <div className="h-5 w-full bg-muted rounded mb-1" />
+          <div className="h-5 w-2/3 bg-muted rounded mb-6" />
+          <div className="h-64 md:h-96 w-full bg-muted rounded mb-8" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-4 w-full bg-muted rounded" />
+            ))}
+          </div>
         </main>
       </div>
     );
@@ -122,40 +170,6 @@ const ArticlePage = () => {
 
   const articlePath = `/articulo/${article.slug}`;
   const articleTitle = `${article.title} | ${article.category}`;
-  const schema = {
-    "@context": "https://schema.org",
-    "@graph": [
-      PUBLISHER,
-      {
-        "@type": "WebSite",
-        "@id": WEBSITE_ID,
-        url: SITE_URL,
-        name: "WINFORMA",
-        inLanguage: "es-CL",
-        publisher: {
-          "@id": ORGANIZATION_ID,
-        },
-      },
-      {
-        "@type": "NewsArticle",
-        headline: article.title,
-        description: article.summary,
-        image: [article.image.startsWith("http") ? article.image : `${SITE_URL}${article.image}`],
-        datePublished: article.publishedAt,
-        dateModified: article.publishedAt,
-        articleSection: article.category,
-        isAccessibleForFree: true,
-        author: {
-          "@type": "Person",
-          name: article.author,
-        },
-        publisher: {
-          "@id": ORGANIZATION_ID,
-        },
-        mainEntityOfPage: `${SITE_URL}${articlePath}`,
-      },
-    ],
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -230,6 +244,8 @@ const ArticlePage = () => {
             alt={article.title}
             category={article.category}
             className="w-full h-64 object-cover object-top md:h-96"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
 
@@ -250,39 +266,33 @@ const ArticlePage = () => {
             [&_figure]:my-8 [&_figure]:mx-0
             [&_figure_img]:w-full [&_figure_img]:rounded-lg [&_figure_img]:mb-0
             [&_figcaption]:!mt-2 [&_figcaption]:!mb-0 [&_figcaption]:!text-xs [&_figcaption]:!leading-snug [&_figcaption]:!font-sans [&_figcaption]:!not-italic [&_figcaption]:!text-muted-foreground"
-          dangerouslySetInnerHTML={{ __html: sanitizeArticleContent(article.content, article.title) }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
 
         {/* Related articles */}
-        {(() => {
-          const related = allArticles
-            .filter((a) => a.category === article.category && a.slug !== article.slug)
-            .slice(0, 3);
-          if (!related.length) return null;
-          return (
-            <section className="mt-12 pt-8 border-t border-border">
-              <h3 className="text-lg font-bold font-serif text-foreground mb-6 pb-2 border-b-2 border-foreground">
-                También en {article.category}
-              </h3>
-              <div className="grid gap-6 sm:grid-cols-3">
-                {related.map((rel) => (
-                  <Link key={rel.slug} to={`/articulo/${rel.slug}`} className="group">
-                    <ArticleImage
-                      src={rel.image}
-                      alt={rel.title}
-                      category={rel.category}
-                      className="w-full h-36 object-cover object-top mb-3 transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                    <p className="text-sm font-bold font-serif text-foreground leading-snug group-hover:underline decoration-1 underline-offset-2">
-                      {rel.title}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground font-sans mt-1">{rel.time}</p>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          );
-        })()}
+        {related.length > 0 && (
+          <section className="mt-12 pt-8 border-t border-border">
+            <h3 className="text-lg font-bold font-serif text-foreground mb-6 pb-2 border-b-2 border-foreground">
+              También en {article.category}
+            </h3>
+            <div className="grid gap-6 sm:grid-cols-3">
+              {related.map((rel) => (
+                <Link key={rel.slug} to={`/articulo/${rel.slug}`} className="group">
+                  <ArticleImage
+                    src={rel.image}
+                    alt={rel.title}
+                    category={rel.category}
+                    className="w-full h-36 object-cover object-top mb-3 transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                  <p className="text-sm font-bold font-serif text-foreground leading-snug group-hover:underline decoration-1 underline-offset-2">
+                    {rel.title}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground font-sans mt-1">{rel.time}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Back to home */}
         <div className="mt-10 pt-6 border-t border-border">
