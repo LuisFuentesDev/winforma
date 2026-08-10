@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { hydrateArticlesCache, persistArticlesCache } from "@/lib/query-persist";
 // Rutas del flujo principal (home/artículo/categoría): estáticas, deben cargar de inmediato.
 import Index from "./pages/Index.tsx";
 import ArticlePage from "./pages/ArticlePage.tsx";
@@ -33,6 +34,10 @@ const queryClient = new QueryClient({
     queries: { staleTime: 30_000, refetchOnWindowFocus: false },
   },
 });
+
+// Muestra el último listado de noticias guardado mientras llega el fresco, en vez de un skeleton en cada recarga.
+hydrateArticlesCache(queryClient);
+persistArticlesCache(queryClient);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
