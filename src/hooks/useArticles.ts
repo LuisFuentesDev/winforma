@@ -3,8 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { mapSupabaseArticle, type Article, type SupabaseArticle } from "@/data/articles";
 import { supabase } from "@/integrations/supabase/client";
 
-const ARTICLES_SELECT =
-  "id, slug, title, summary, content, author, category, image_url, source_url, breaking, status, published_at, created_at, updated_at";
+// Sin "content": el listado no lo muestra (solo summary). Ahorra el grueso del payload.
+const ARTICLES_LIST_SELECT =
+  "id, slug, title, summary, author, category, image_url, source_url, breaking, status, published_at, created_at, updated_at";
+const ARTICLE_DETAIL_SELECT = `${ARTICLES_LIST_SELECT}, content`;
 
 async function fetchArticles(): Promise<Article[]> {
   if (!supabase) {
@@ -13,7 +15,7 @@ async function fetchArticles(): Promise<Article[]> {
 
   const { data, error } = await supabase
     .from("articles")
-    .select(ARTICLES_SELECT)
+    .select(ARTICLES_LIST_SELECT)
     .eq("status", "published")
     .eq("site", "winforma")
     .order("published_at", { ascending: false });
@@ -22,7 +24,7 @@ async function fetchArticles(): Promise<Article[]> {
     return [];
   }
 
-  return (data as SupabaseArticle[]).map(mapSupabaseArticle);
+  return (data as SupabaseArticle[]).map((a) => mapSupabaseArticle({ ...a, content: a.content ?? "" }));
 }
 
 async function fetchArticleBySlug(slug?: string): Promise<Article | null> {
@@ -32,7 +34,7 @@ async function fetchArticleBySlug(slug?: string): Promise<Article | null> {
 
   const { data, error } = await supabase
     .from("articles")
-    .select(ARTICLES_SELECT)
+    .select(ARTICLE_DETAIL_SELECT)
     .eq("status", "published")
     .eq("site", "winforma")
     .eq("slug", slug)
