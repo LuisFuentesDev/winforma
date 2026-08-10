@@ -27,7 +27,12 @@ const RedComunitariaSupport = lazy(() => import("./pages/RedComunitariaSupport.t
 const RedComunitariaLanding = lazy(() => import("./pages/RedComunitariaLanding.tsx"));
 const RedComunitariaApk = lazy(() => import("./pages/RedComunitariaApk.tsx"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    // Piso para toda query que no fije su propio staleTime (evita refetch en cada foco/montaje).
+    queries: { staleTime: 30_000, refetchOnWindowFocus: false },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
