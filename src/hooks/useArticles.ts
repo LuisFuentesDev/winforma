@@ -57,6 +57,33 @@ export async function fetchArticlesBySlugs(slugs: string[]): Promise<Article[]> 
   return (data as SupabaseArticle[]).map((a) => mapSupabaseArticle({ ...a, content: a.content ?? "" }));
 }
 
+async function fetchRelatedArticles(category: string, excludeSlug: string, limit: number): Promise<Article[]> {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("articles")
+    .select(ARTICLES_LIST_SELECT)
+    .eq("status", "published")
+    .eq("site", "winforma")
+    .ilike("category", category)
+    .neq("slug", excludeSlug)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data?.length) return [];
+
+  return (data as SupabaseArticle[]).map((a) => mapSupabaseArticle({ ...a, content: a.content ?? "" }));
+}
+
+export function useRelatedArticles(category?: string, excludeSlug?: string, limit = 3) {
+  return useQuery({
+    queryKey: ["articles", "related", category, excludeSlug, limit],
+    queryFn: () => fetchRelatedArticles(category!, excludeSlug!, limit),
+    enabled: Boolean(category && excludeSlug),
+    staleTime: 60_000,
+  });
+}
+
 async function fetchArticleBySlug(slug?: string): Promise<Article | null> {
   if (!supabase || !slug) {
     return null;
