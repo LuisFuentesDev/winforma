@@ -7,8 +7,40 @@ interface LatestNewsProps {
 }
 
 const LatestNews = ({ horizontal = false }: LatestNewsProps) => {
-  const { data: articles = [] } = useArticles();
+  const { data: articles = [], isLoading } = useArticles();
   const items = articles.slice(1, horizontal ? 9 : 8);
+  const skeletonCount = horizontal ? 7 : 7;
+
+  if (isLoading) {
+    return horizontal ? (
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-x-4 gap-y-4 animate-pulse">
+        {Array.from({ length: skeletonCount }).map((_, i) => (
+          <div key={i} className="lg:px-4 lg:first:pl-0 py-1 space-y-1.5">
+            <div className="h-2.5 w-16 bg-muted rounded" />
+            <div className="h-3 w-full bg-muted rounded" />
+            <div className="h-3 w-3/4 bg-muted rounded" />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="animate-pulse">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="block w-3 h-3 bg-muted rotate-45 shrink-0" />
+          <div className="h-3 w-32 bg-muted rounded" />
+          <div className="flex-1 border-t border-border" />
+        </div>
+        <ul className="divide-y divide-border">
+          {Array.from({ length: skeletonCount }).map((_, i) => (
+            <li key={i} className="py-3 space-y-1.5">
+              <div className="h-2.5 w-20 bg-muted rounded" />
+              <div className="h-4 w-full bg-muted rounded" />
+              <div className="h-2.5 w-16 bg-muted rounded" />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   if (horizontal) {
     return (
