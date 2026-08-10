@@ -245,6 +245,7 @@ const ArticlePage = () => {
             category={article.category}
             className="w-full h-64 object-cover object-top md:h-96"
             loading="eager"
+            width={900}
             fetchPriority="high"
           />
         </div>
@@ -283,6 +284,7 @@ const ArticlePage = () => {
                     alt={rel.title}
                     category={rel.category}
                     className="w-full h-36 object-cover object-top mb-3 transition-transform duration-300 group-hover:scale-[1.02]"
+                    width={320}
                   />
                   <p className="text-sm font-bold font-serif text-foreground leading-snug group-hover:underline decoration-1 underline-offset-2">
                     {rel.title}

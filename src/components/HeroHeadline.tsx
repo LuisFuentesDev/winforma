@@ -56,6 +56,8 @@ const HeroHeadline = () => {
               category={main.category}
               className="w-full h-[260px] md:h-[340px] lg:h-[420px] object-cover object-top transition-transform duration-700 group-hover:scale-[1.02]"
               loading="eager"
+              width={800}
+              fetchPriority="high"
             />
           </div>
           <span className={`text-[10px] font-black font-sans uppercase tracking-[0.18em] ${getCategoryColor(main.category)}`}>
@@ -95,6 +97,7 @@ const HeroHeadline = () => {
                   category={article!.category}
                   className="w-full h-[160px] object-cover object-top transition-transform duration-500 group-hover:scale-105"
                   loading="eager"
+                  width={160}
                 />
               </div>
             </Link>

@@ -53,6 +53,7 @@ const CategoryPage = () => {
                     alt={article.title}
                     category={article.category}
                     className="w-full h-48 object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                    width={400}
                   />
                 </div>
                 <span className={`text-[11px] font-bold font-sans uppercase tracking-wider ${getCategoryColor(article.category)}`}>
