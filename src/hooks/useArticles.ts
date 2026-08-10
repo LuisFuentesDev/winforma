@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { mapSupabaseArticle, type Article, type SupabaseArticle } from "@/data/articles";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,17 +8,28 @@ const ARTICLES_LIST_SELECT =
   "id, slug, title, summary, author, category, image_url, source_url, breaking, status, published_at, created_at, updated_at";
 const ARTICLE_DETAIL_SELECT = `${ARTICLES_LIST_SELECT}, content`;
 
-async function fetchArticles(): Promise<Article[]> {
+// Cubre hero(7) + latest(8) + primer lote del grid secundario sin pedir una 2da página.
+const PAGE_SIZE = 24;
+
+async function fetchArticlesPage(page: number, category?: string): Promise<Article[]> {
   if (!supabase) {
     return [];
   }
 
-  const { data, error } = await supabase
+  const from = page * PAGE_SIZE;
+  let query = supabase
     .from("articles")
     .select(ARTICLES_LIST_SELECT)
     .eq("status", "published")
-    .eq("site", "winforma")
-    .order("published_at", { ascending: false });
+    .eq("site", "winforma");
+
+  if (category) {
+    query = query.ilike("category", category); // sin comodines = comparación exacta case-insensitive
+  }
+
+  const { data, error } = await query
+    .order("published_at", { ascending: false })
+    .range(from, from + PAGE_SIZE - 1);
 
   if (error || !data?.length) {
     return [];
@@ -51,12 +62,23 @@ async function fetchArticleBySlug(slug?: string): Promise<Article | null> {
   return mapSupabaseArticle(data as SupabaseArticle);
 }
 
-export function useArticles() {
-  return useQuery({
-    queryKey: ["articles"],
-    queryFn: fetchArticles,
+function useArticlesInfinite(queryKey: unknown[], category?: string, enabled = true) {
+  const query = useInfiniteQuery({
+    queryKey,
+    queryFn: ({ pageParam }) => fetchArticlesPage(pageParam, category),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) => (lastPage.length === PAGE_SIZE ? pages.length : undefined),
     staleTime: 60_000,
+    enabled,
   });
+
+  const articles = useMemo(() => query.data?.pages.flat() ?? [], [query.data]);
+
+  return { ...query, data: articles };
+}
+
+export function useArticles() {
+  return useArticlesInfinite(["articles"]);
 }
 
 export function useArticle(slug?: string) {
@@ -69,18 +91,5 @@ export function useArticle(slug?: string) {
 }
 
 export function useArticlesByCategory(category?: string) {
-  const query = useArticles();
-
-  const articles = useMemo(() => {
-    if (!category) return [];
-
-    return (query.data ?? []).filter(
-      (article) => article.category.toLowerCase() === category.toLowerCase(),
-    );
-  }, [category, query.data]);
-
-  return {
-    ...query,
-    data: articles,
-  };
+  return useArticlesInfinite(["articles", "category", category], category, Boolean(category));
 }

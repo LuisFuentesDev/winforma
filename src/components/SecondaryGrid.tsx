@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "@/data/articles";
 import { useArticles } from "@/hooks/useArticles";
 import ArticleImage from "@/components/ArticleImage";
 import { getCategoryColor } from "@/lib/category-colors";
-
-const PAGE_SIZE = 9;
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <div className="flex items-center gap-3 mb-5">
@@ -110,11 +107,8 @@ const SecondaryGridSkeleton = () => (
 );
 
 const SecondaryGrid = () => {
-  const { data: articles = [], isLoading } = useArticles();
-  const [limit, setLimit] = useState(PAGE_SIZE);
-  const pool = articles.slice(4);
-  const visible = pool.slice(0, limit);
-  const hasMore = limit < pool.length;
+  const { data: articles = [], isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useArticles();
+  const visible = articles.slice(4);
 
   if (isLoading) return <SecondaryGridSkeleton />;
   if (!visible.length) return null;
@@ -172,13 +166,14 @@ const SecondaryGrid = () => {
         </div>
       )}
 
-      {hasMore && (
+      {hasNextPage && (
         <div className="mt-8 text-center border-t border-border pt-8">
           <button
-            onClick={() => setLimit((l) => l + PAGE_SIZE)}
-            className="inline-flex items-center gap-2 bg-foreground text-background px-8 py-3 text-[11px] font-black font-sans uppercase tracking-[0.2em] hover:bg-primary transition-colors"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="inline-flex items-center gap-2 bg-foreground text-background px-8 py-3 text-[11px] font-black font-sans uppercase tracking-[0.2em] hover:bg-primary transition-colors disabled:opacity-50"
           >
-            Cargar más
+            {isFetchingNextPage ? "Cargando..." : "Cargar más"}
           </button>
         </div>
       )}

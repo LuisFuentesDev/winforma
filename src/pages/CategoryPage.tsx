@@ -9,7 +9,8 @@ import { getCategoryColor, getCategoryBadge } from "@/lib/category-colors";
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
   const decodedCategory = decodeURIComponent(category || "");
-  const { data: articles = [], isLoading } = useArticlesByCategory(decodedCategory);
+  const { data: articles = [], isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useArticlesByCategory(decodedCategory);
   const categoryPath = `/seccion/${encodeURIComponent(decodedCategory)}`;
   const description = decodedCategory
     ? `Ultimas noticias de ${decodedCategory} en WINFORMA, con cobertura actualizada y foco editorial en Chile y La Araucania.`
@@ -68,6 +69,18 @@ const CategoryPage = () => {
                 </p>
               </Link>
             ))}
+          </div>
+        )}
+
+        {hasNextPage && (
+          <div className="mt-8 text-center border-t border-border pt-8">
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="inline-flex items-center gap-2 bg-foreground text-background px-8 py-3 text-[11px] font-black font-sans uppercase tracking-[0.2em] hover:bg-primary transition-colors disabled:opacity-50"
+            >
+              {isFetchingNextPage ? "Cargando..." : "Cargar más"}
+            </button>
           </div>
         )}
       </main>
