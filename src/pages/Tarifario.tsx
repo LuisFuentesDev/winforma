@@ -1,6 +1,5 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Mail } from "lucide-react";
 import Seo from "@/components/Seo";
 
@@ -47,28 +46,30 @@ const Tarifario = () => {
               Publicidad Web
             </h2>
             <div className="rounded-lg border border-border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="font-bold text-foreground">Formato</TableHead>
-                    <TableHead className="font-bold text-foreground">Ubicación</TableHead>
-                    <TableHead className="font-bold text-foreground">Tamaño</TableHead>
-                    <TableHead className="font-bold text-foreground">Duración</TableHead>
-                    <TableHead className="font-bold text-foreground">Valor (CLP)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tarifasWeb.map((t, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{t.formato}</TableCell>
-                      <TableCell>{t.plataforma}</TableCell>
-                      <TableCell className="font-mono text-xs">{t.tamano}</TableCell>
-                      <TableCell>{t.duracion}</TableCell>
-                      <TableCell className="font-semibold">{t.valor}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead className="[&_tr]:border-b">
+                    <tr className="border-b transition-colors bg-muted/50">
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Formato</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Ubicación</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Tamaño</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Duración</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Valor (CLP)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {tarifasWeb.map((t, i) => (
+                      <tr key={i} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle font-medium">{t.formato}</td>
+                        <td className="p-4 align-middle">{t.plataforma}</td>
+                        <td className="p-4 align-middle font-mono text-xs">{t.tamano}</td>
+                        <td className="p-4 align-middle">{t.duracion}</td>
+                        <td className="p-4 align-middle font-semibold">{t.valor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -79,28 +80,30 @@ const Tarifario = () => {
               Publicidad Redes Sociales
             </h2>
             <div className="rounded-lg border border-border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="font-bold text-foreground">Formato</TableHead>
-                    <TableHead className="font-bold text-foreground">Plataforma</TableHead>
-                    <TableHead className="font-bold text-foreground">Tamaño</TableHead>
-                    <TableHead className="font-bold text-foreground">Duración</TableHead>
-                    <TableHead className="font-bold text-foreground">Valor (CLP)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tarifasRRSS.map((t, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{t.formato}</TableCell>
-                      <TableCell>{t.plataforma}</TableCell>
-                      <TableCell className="font-mono text-xs">{t.tamano}</TableCell>
-                      <TableCell>{t.duracion}</TableCell>
-                      <TableCell className="font-semibold">{t.valor}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead className="[&_tr]:border-b">
+                    <tr className="border-b transition-colors bg-muted/50">
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Formato</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Plataforma</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Tamaño</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Duración</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Valor (CLP)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {tarifasRRSS.map((t, i) => (
+                      <tr key={i} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle font-medium">{t.formato}</td>
+                        <td className="p-4 align-middle">{t.plataforma}</td>
+                        <td className="p-4 align-middle font-mono text-xs">{t.tamano}</td>
+                        <td className="p-4 align-middle">{t.duracion}</td>
+                        <td className="p-4 align-middle font-semibold">{t.valor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
