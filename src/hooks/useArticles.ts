@@ -29,6 +29,7 @@ async function fetchArticlesPage(page: number, category?: string): Promise<Artic
 
   const { data, error } = await query
     .order("published_at", { ascending: false })
+    .order("id", { ascending: false }) // desempate estable: evita duplicados al paginar cuando published_at se repite
     .range(from, from + PAGE_SIZE - 1);
 
   if (error || !data?.length) {
