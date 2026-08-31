@@ -4,6 +4,7 @@ import { Mail } from "lucide-react";
 import Seo from "@/components/Seo";
 
 const tarifasWeb = [
+  { formato: "Publicación de nota", plataforma: "Web (Noticia)", tamano: "—", duracion: "—", valor: "$30.000" },
   { formato: "Caja Lateral Inferior", plataforma: "Web (Sidebar)", tamano: "300 × 250 px", duracion: "7 días", valor: "$35.000" },
   { formato: "Caja Lateral Superior", plataforma: "Web (Sidebar)", tamano: "300 × 250 px", duracion: "7 días", valor: "$45.000" },
   { formato: "Banner Lateral Grande", plataforma: "Web (Sidebar)", tamano: "300 × 600 px", duracion: "7 días", valor: "$65.000" },
@@ -18,6 +19,15 @@ const tarifasRRSS = [
   { formato: "Publicación en Carrusel", plataforma: "Instagram (Feed)", tamano: "1080 × 1080 px c/u", duracion: "1 día", valor: "$65.000" },
   { formato: "Reel", plataforma: "Instagram (Reels)", tamano: "1080 × 1920 px", duracion: "1 día", valor: "$90.000" },
   { formato: "Paquete RRSS", plataforma: "Facebook + Instagram", tamano: "Variable", duracion: "7 días", valor: "$200.000" },
+];
+
+const tarifasFijada = [
+  { duracion: "2 días", valor: "$68.000", porDia: "$34.000" },
+  { duracion: "3 días", valor: "$95.000", porDia: "$31.700" },
+  { duracion: "5 días", valor: "$145.000", porDia: "$29.000" },
+  { duracion: "7 días", valor: "$190.000", porDia: "$27.100" },
+  { duracion: "15 días", valor: "$350.000", porDia: "$23.300" },
+  { duracion: "30 días", valor: "$600.000", porDia: "$20.000" },
 ];
 
 const Tarifario = () => {
@@ -105,6 +115,39 @@ const Tarifario = () => {
                 </table>
               </div>
             </div>
+          </div>
+
+          {/* Publicación fijada */}
+          <div>
+            <h2 className="text-xl font-bold font-serif text-foreground mb-3 flex items-center gap-2">
+              <span className="inline-block w-1 h-5 bg-primary rounded-sm" />
+              Publicación Fijada en el Perfil de Instagram
+            </h2>
+            <div className="rounded-lg border border-border overflow-hidden">
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead className="[&_tr]:border-b">
+                    <tr className="border-b transition-colors bg-muted/50">
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Duración</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Valor total (CLP)</th>
+                      <th className="h-12 px-4 text-left align-middle font-bold text-foreground">Valor por día</th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {tarifasFijada.map((t, i) => (
+                      <tr key={i} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle font-medium">{t.duracion}</td>
+                        <td className="p-4 align-middle font-semibold">{t.valor}</td>
+                        <td className="p-4 align-middle text-muted-foreground">{t.porDia}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              * Duración mínima recomendada: 3 días. Publicación destacada arriba del feed en el perfil de Instagram.
+            </p>
           </div>
 
           <p className="text-sm text-muted-foreground">
