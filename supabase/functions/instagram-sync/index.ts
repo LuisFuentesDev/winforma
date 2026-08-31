@@ -455,6 +455,12 @@ Deno.serve(async (req) => {
         .single();
 
       if (error) {
+        // 23505 = unique_violation. Otra invocación concurrente ya insertó este
+        // mismo source_url entre el SELECT de arriba y este insert; se trata
+        // igual que "ya existe" en vez de reventar el sync completo.
+        if (error.code === "23505") {
+          continue;
+        }
         throw error;
       }
 
