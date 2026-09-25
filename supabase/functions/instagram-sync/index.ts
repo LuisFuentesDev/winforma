@@ -424,13 +424,16 @@ Deno.serve(async (req) => {
       }
 
       const category = guessCategory(paragraphs.join(" "), site);
+      // La imagen va antes que OpenAI: si falla, el cron reintenta sin haber
+      // pagado una reescritura que se pierde. El nombre usa media.id (no el
+      // slug) porque el título aún no existe y así el reintento pisa el mismo archivo.
+      const remoteImageUrl = media.thumbnail_url || media.media_url || "";
+      const imageUrl = remoteImageUrl
+        ? await uploadImageToStorage(supabase, remoteImageUrl, `ig-${site}-${media.id || slugify(permalink)}`)
+        : null;
       const { title, summary, body } = await rewriteWithOpenAI(paragraphs, category, site);
       const finalSummary = summary || makeMetaDescription(removeDuplicateLeadTitle(title, paragraphs), 110);
       const slug = slugify(title || `instagram-${media.id || "post"}`);
-      const remoteImageUrl = media.thumbnail_url || media.media_url || "";
-      const imageUrl = remoteImageUrl
-        ? await uploadImageToStorage(supabase, remoteImageUrl, slug)
-        : null;
       const publishedAt = media.timestamp || new Date().toISOString();
 
       const { data, error } = await supabase
